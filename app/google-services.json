@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "774858133106",
+    "firebase_url": "https://anonymous-twitter-aea19.firebaseio.com",
+    "project_id": "anonymous-twitter-aea19",
+    "storage_bucket": "anonymous-twitter-aea19.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:774858133106:android:5f46cf6aef268da8",
+        "android_client_info": {
+          "package_name": "com.example.android.anonymoustwitter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "774858133106-vra1eao01kbnafvnlnqm1f4e5tjlek8f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMXI2sK5uXpupGIHw6SV_Gj_zK2IaovTw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

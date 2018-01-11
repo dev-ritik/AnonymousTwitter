@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/messageLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginTop="8dp"
+    >
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_background_others"
+        >
+
+        <ImageView
+            android:id="@+id/photoImageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:adjustViewBounds="true"
+            android:background="@color/common_google_signin_btn_text_dark_focused"
+            android:padding="5dp"
+            android:src="@color/colorPrimaryDark" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/messageTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="38dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="0"
+                android:textSize="25sp"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/colorPrimaryDark"
+                tools:text="Message" />
+
+            <CheckBox
+                android:id="@+id/favorite"
+                android:layout_width="35dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:background="@android:color/transparent"
+                android:layout_alignParentEnd="true"
+                android:button="@android:drawable/btn_star"
+                android:padding="@dimen/activity_horizontal_margin" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="5dp"
+            android:paddingBottom="3dp">
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="35sp"
+                android:layout_alignParentStart="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="13sp"
+                android:textColor="@color/colorPrimaryDark"
+                tools:text="17 ghggggggggg" />
+
+            <com.varunest.sparkbutton.SparkButton
+                android:id="@+id/reactup"
+                android:layout_gravity="right|top"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/reactUpCount"
+                app:sparkbutton_activeImage="@drawable/liked_24"
+                app:sparkbutton_inActiveImage="@drawable/ic_thumb_up_black_24dp"
+                app:sparkbutton_iconSize="40dp"
+                app:sparkbutton_primaryColor="@color/primary_like"
+                app:sparkbutton_secondaryColor="@color/secondary_like" />
+
+
+            <TextView
+                android:id="@+id/reactUpCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_toLeftOf="@+id/reactdown"
+                android:gravity="right"
+                android:minWidth="18dp"
+                android:text="rr"
+                android:textSize="15sp"
+                android:textColor="@color/secondary_like"
+                android:textStyle="bold"
+                tools:text="55" />
+
+            <com.varunest.sparkbutton.SparkButton
+                android:layout_gravity="right|top"
+                android:id="@+id/reactdown"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/reactdownCount"
+                app:sparkbutton_activeImage="@drawable/disliked_24"
+                app:sparkbutton_inActiveImage="@drawable/ic_thumb_down_black_24dp"
+                app:sparkbutton_iconSize="40dp"
+                app:sparkbutton_primaryColor="@color/primary_unlike"
+                app:sparkbutton_secondaryColor="@color/secondary_unlike" />
+
+
+            <TextView
+                android:id="@+id/reactdownCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:minWidth="18dp"
+                android:textSize="15sp"
+                android:textColor="@color/fui_bgEmail"
+                android:textStyle="bold"
+                tools:text="88" />
+
+        </RelativeLayout>
+    </LinearLayout>
+</LinearLayout>
