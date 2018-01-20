@@ -85,9 +85,9 @@ public class LoginActivity extends AppCompatActivity {
         signUpButton =findViewById(R.id.signUpDo);
         cancelButton=findViewById(R.id.cancel);
 
-        userPasswordRegistration=findViewById(R.id.userName);
+        userPasswordRegistration=findViewById(R.id.password2);
         getUserPasswordRecheck =findViewById(R.id.password1);
-        userEmailNew=findViewById(R.id.password2);
+        userEmailNew=findViewById(R.id.userName);
 
         signinButton = findViewById(R.id.signInButton);
         signinButton.setOnClickListener(new View.OnClickListener() {
@@ -357,7 +357,6 @@ public class LoginActivity extends AppCompatActivity {
 
                         }
 
-                        // ...
                     }
                 });
     }

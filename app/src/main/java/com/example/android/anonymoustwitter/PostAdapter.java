@@ -277,7 +277,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
         String[] timeArray = post.getTimeCurrent().split(" ");
 
-        String[] currentTimeArray = DateFormat.getDateTimeInstance().format(new Date()).split(" ");
+        String[] currentTimeArray =android.text.format.DateFormat.format("MMM dd, yyyy hh:mm:ss aaa", new java.util.Date()).toString().split(" ");
+
         if (!timeArray[2].equals(currentTimeArray[2])) {
 //            System.out.println("stadpoint124");
 
@@ -314,10 +315,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                     post.getSaveIt().remove(MainActivity.mUsername);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.favouritePost.setChecked(false);
-                    changeData("saveIt", post.getTimeCurrent(), post.getLikedUsers());
+                    changeData("saveIt", post.getTimeCurrent(), post.getSaveIt());
                     System.out.println("stadpoint p443");
                 }
-                System.out.println("stadpoint p233");
+//                System.out.println("stadpoint p233");
 
             }
         });
