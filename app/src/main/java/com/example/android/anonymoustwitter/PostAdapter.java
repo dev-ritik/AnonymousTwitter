@@ -41,7 +41,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     // you provide access to all the views for a data item in a view holder
     public class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        TextView messageTextView, timeTextView, likes, unlikes;
+        TextView messageTextView, timeTextView, likes, unlikes,NameText;
         ImageView photoImageView;
         LinearLayout messageLayout2;
 
@@ -58,6 +58,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             messageTextView = (TextView) view.findViewById(R.id.messageTextView);
             messageLayout = view.findViewById(R.id.messageLayout);
             messageLayout2=view.findViewById(R.id.linearLayout2);
+            NameText=view.findViewById(R.id.NameTextView);
 
             timeTextView = (TextView) view.findViewById(R.id.time);
             likes = (TextView) view.findViewById(R.id.reactUpCount);
@@ -118,20 +119,30 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             holder.messageTextView.setText(post.getText());
 
         }
-
-        if (post.getPosterId().equals(MainActivity.mUsername)) {
+        try {
+            Log.i(post.getPosterId(), "standpoint p124");
+        }
+        catch (Exception e){
+            Log.i("error", "standpoint p127");
+        }
+        if (post.getPosterId().equals(MainActivity.mUserId)) {
             Log.i(post.getPosterId(), "standpoint p137");
 
             holder.messageLayout.setGravity(RIGHT);
         } else {
             Log.i(post.getPosterId(), "standpoint p151");
+            Log.i(MainActivity.mUserId, "standpoint p129");
             holder.messageLayout.setGravity(LEFT);
+        }
+
+        if(post.getPosterName()!=null){
+            holder.NameText.setText(post.getPosterName());
         }
 
         holder.likes.setText(Integer.toString(post.getLikedUsers().size() - 1));
         holder.unlikes.setText(Integer.toString(post.getUnlikedUsers().size() - 1));
 
-        if (post.getLikedUsers().contains(MainActivity.mUsername)) {
+        if (post.getLikedUsers().contains(MainActivity.mUserId)) {
             holder.likeButton.setChecked(true);
 
             holder.unlikeButton.setChecked(false);
@@ -140,7 +151,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             holder.likeButton.setChecked(false);
         }
 
-        if (post.getUnlikedUsers().contains(MainActivity.mUsername)) {
+        if (post.getUnlikedUsers().contains(MainActivity.mUserId)) {
             holder.unlikeButton.setChecked(true);
             holder.likeButton.setChecked(false);
 
@@ -180,23 +191,23 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             @Override
             public void onEventAnimationStart(ImageView button, boolean buttonState) {
                 Log.i("started anim", "standpoint po179");
-                if (post.getLikedUsers().contains(MainActivity.mUsername)) { //trying to get neutral from liked
+                if (post.getLikedUsers().contains(MainActivity.mUserId)) { //trying to get neutral from liked
                     Log.i("neutral from liked", "standpoint po192");
-                    post.getLikedUsers().remove(MainActivity.mUsername);
+                    post.getLikedUsers().remove(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.likeButton.setChecked(false);
                     changeData("likedUsers", post.getTimeCurrent(), post.getLikedUsers());
-                } else if (!post.getLikedUsers().contains(MainActivity.mUsername) && !post.getUnlikedUsers().contains(MainActivity.mUsername)) { //trying to like from neutral
+                } else if (!post.getLikedUsers().contains(MainActivity.mUserId) && !post.getUnlikedUsers().contains(MainActivity.mUserId)) { //trying to like from neutral
                     Log.i("like from neutral", "standpoint po202");
 
-                    post.getLikedUsers().add(MainActivity.mUsername);
+                    post.getLikedUsers().add(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.likeButton.setChecked(true);
                     changeData("likedUsers", post.getTimeCurrent(), post.getLikedUsers());
-                } else if (!post.getLikedUsers().contains(MainActivity.mUsername) && post.getUnlikedUsers().contains(MainActivity.mUsername)) { //trying to like from unlike
+                } else if (!post.getLikedUsers().contains(MainActivity.mUserId) && post.getUnlikedUsers().contains(MainActivity.mUserId)) { //trying to like from unlike
                     Log.i("like from unlike", "standpoint po209");
-                    post.getLikedUsers().add(MainActivity.mUsername);
-                    post.getUnlikedUsers().remove(MainActivity.mUsername);
+                    post.getLikedUsers().add(MainActivity.mUserId);
+                    post.getUnlikedUsers().remove(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.likeButton.setChecked(true);
                     holder.unlikeButton.setChecked(false);
@@ -248,22 +259,22 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             @Override
             public void onEventAnimationStart(ImageView button, boolean buttonState) {
                 Log.i("started anim", "standpoint po179");
-                if (post.getUnlikedUsers().contains(MainActivity.mUsername)) { //trying to get neutral from unliked
+                if (post.getUnlikedUsers().contains(MainActivity.mUserId)) { //trying to get neutral from unliked
                     Log.i("neutral from unliked", "standpoint po298");
-                    post.getUnlikedUsers().remove(MainActivity.mUsername);
+                    post.getUnlikedUsers().remove(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.unlikeButton.setChecked(false);
                     changeData("unlikedUsers", post.getTimeCurrent(), post.getUnlikedUsers());
-                } else if (!post.getLikedUsers().contains(MainActivity.mUsername) && !post.getUnlikedUsers().contains(MainActivity.mUsername)) { //trying to unlike from neutral
+                } else if (!post.getLikedUsers().contains(MainActivity.mUserId) && !post.getUnlikedUsers().contains(MainActivity.mUserId)) { //trying to unlike from neutral
                     Log.i("unlike from neutral", "standpoint po305");
-                    post.getUnlikedUsers().add(MainActivity.mUsername);
+                    post.getUnlikedUsers().add(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.unlikeButton.setChecked(true);
                     changeData("unlikedUsers", post.getTimeCurrent(), post.getUnlikedUsers());
-                } else if (post.getLikedUsers().contains(MainActivity.mUsername) && !post.getUnlikedUsers().contains(MainActivity.mUsername)) { //trying to unlike from like
+                } else if (post.getLikedUsers().contains(MainActivity.mUserId) && !post.getUnlikedUsers().contains(MainActivity.mUserId)) { //trying to unlike from like
                     Log.i("unlike from like", "standpoint po312");
-                    post.getLikedUsers().remove(MainActivity.mUsername);
-                    post.getUnlikedUsers().add(MainActivity.mUsername);
+                    post.getLikedUsers().remove(MainActivity.mUserId);
+                    post.getUnlikedUsers().add(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.likeButton.setChecked(false);
                     holder.unlikeButton.setChecked(true);
@@ -292,7 +303,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             }
         }
 
-        if (post.getSaveIt().contains(MainActivity.mUsername)) {
+        if (post.getSaveIt().contains(MainActivity.mUserId)) {
             holder.favouritePost.setChecked(true);
             System.out.println("stadpoint p427");
 
@@ -304,15 +315,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.favouritePost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!post.getSaveIt().contains(MainActivity.mUsername)) {
-                    post.getSaveIt().add(MainActivity.mUsername);
+                if (!post.getSaveIt().contains(MainActivity.mUserId)) {
+                    post.getSaveIt().add(MainActivity.mUserId);
                     changeData("saveIt", post.getTimeCurrent(), post.getSaveIt());
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.favouritePost.setChecked(true);
                     System.out.println("stadpoint p437");
 
                 } else {
-                    post.getSaveIt().remove(MainActivity.mUsername);
+                    post.getSaveIt().remove(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.favouritePost.setChecked(false);
                     changeData("saveIt", post.getTimeCurrent(), post.getSaveIt());

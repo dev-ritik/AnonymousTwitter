@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> unlikers;
     ArrayList<String> favouriteArrayList;
 
-    public static String mUsername;
+    public static String mUserId;
     public static String mUser;
 
     private String mEmailId;
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mainactivity);
 
-        mUsername = ANONYMOUS;
+        mUserId = ANONYMOUS;
         mEmailId = "";
         count = 0;
 
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                     //if swipe left
                     Log.i("swipped", "standpoint m175");
 
-                    if (posts.get(position).getPosterId().equals(mUsername)) {
+                    if (posts.get(position).getPosterId().equals(mUserId)) {
                         Log.i("swipped", "standpoint m177");
 
                         new AlertDialog.Builder(MainActivity.this) //alert for confirm to delete
@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
                             unlikers.add("1234");
                             favouriteArrayList.add("1234");
                             imageView.setImageResource(0);
-                            Post post = new Post(mMessageEditText.getText().toString().trim(), downloadUrl.toString(), calculateTime(), mUsername, likers, unlikers, favouriteArrayList);
+                            Post post = new Post(mMessageEditText.getText().toString().trim(), downloadUrl.toString(), calculateTime(),mUser, mUserId, likers, unlikers, favouriteArrayList);
                             mMessagesDatabaseReference.push().setValue(post);
                             downloadUrl = null;
                             selectedImageUri = null;
@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (mMessageEditText.getText().toString().equals("")) {
                     Toast.makeText(MainActivity.this, "Please enter some text", Toast.LENGTH_SHORT).show();
                 } else {
-                    Post post = new Post(mMessageEditText.getText().toString().trim(), null, calculateTime(), mUsername, likers, unlikers, favouriteArrayList);
+                    Post post = new Post(mMessageEditText.getText().toString().trim(), null, calculateTime(),mUser, mUserId, likers, unlikers, favouriteArrayList);
                     mMessagesDatabaseReference.push().setValue(post);
                 }
                 // Clear input box
@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sign_out_menu:
-                mUsername = ANONYMOUS;
+                mUserId = ANONYMOUS;
                 mEmailId = "";
                 posts.clear();
 //        mPostAdapter.clear();//clear adapter so that it doesn't holds any earlier data
@@ -433,15 +433,15 @@ public class MainActivity extends AppCompatActivity {
         //authenticate and carry
     }
 
-    private void onSignInitilize(String username, String email) {
-        mUsername = username;
+    private void onSignInitilize(String userid, String email) {
+        mUserId = userid;
         mEmailId = email;
         attachDatabaseListener();//sync and download content and update adapter
 
     }
 
     private void onSignOutCleaner() {
-        mUsername = ANONYMOUS;
+        mUserId = ANONYMOUS;
         mEmailId = "";
         posts.clear();
 //        mPostAdapter.clear();//clear adapter so that it doesn't holds any earlier data
@@ -479,6 +479,7 @@ public class MainActivity extends AppCompatActivity {
 
                     //attached to all added child(all past and future child)
                     Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
+                    Log.i(post.getPosterId(), "standpoint m483");
                     posts.add(post);
 
                     mAdapter.notifyDataSetChanged();

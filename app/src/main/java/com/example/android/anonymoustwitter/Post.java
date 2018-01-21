@@ -1,6 +1,8 @@
 
 package com.example.android.anonymoustwitter;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 public class Post {
@@ -29,15 +31,16 @@ public class Post {
 
     }
 
-//    public Post(String text, String photoUrl, String currentTime, String username, ArrayList likers, ArrayList unlikers,ArrayList saveIt) {
-//        this.text = text;
-//        this.photoUrl = photoUrl;
-//        this.time = currentTime;
-//        this.name = username;
-//        this.likedUsers = likers;
-//        this.unlikedUsers = unlikers;
-//        this.saveIt=saveIt;
-//    }
+    public Post(String text, String photoUrl, String currentTime, String username,String userID, ArrayList likers, ArrayList unlikers,ArrayList saveIt) {
+        this.text = text;
+        this.photoUrl = photoUrl;
+        this.time = currentTime;
+        this.name = username;
+        this.likedUsers = likers;
+        this.unlikedUsers = unlikers;
+        this.userId = userID;
+        this.saveIt=saveIt;
+    }
 
 
     public String getText() {
@@ -49,11 +52,20 @@ public class Post {
     }
 
     public String getPosterId() {
+        Log.i(userId, "standpoint post55");
         return userId;
     }
 
-    public void setPosterId(String userId) {
-        this.userId = userId;
+    public void setPosterId(String posterId) {
+            this.userId = userId;
+    }
+
+    public String getPosterName() {
+        return name;
+    }
+
+    public void setPosterName(String username){
+        this.name=username;
     }
 
     public void setTimeCurrent(String time) {
