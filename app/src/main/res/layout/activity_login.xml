@@ -2,8 +2,8 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -126,7 +126,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/rounded_background_others"
-                android:hint="Enter EmailId"
+                android:hint="Enter Your Name"
+                android:textColor="@color/colorPrimaryDark"
+                android:textColorHint="@color/colorPrimaryDark"
+                android:textStyle="normal" />
+
+            <EditText
+                android:id="@+id/userEmail"
+                style="@style/signin_page"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_background_others"
+                android:hint="Enter Email Id"
+                android:inputType="textEmailAddress"
                 android:textColor="@color/colorPrimaryDark"
                 android:textColorHint="@color/colorPrimaryDark"
                 android:textStyle="normal" />
@@ -182,6 +194,7 @@
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
+
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleLarge"
@@ -191,5 +204,5 @@
         android:indeterminate="true"
         android:indeterminateTint="#90A4AE"
         android:indeterminateTintMode="src_atop"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 </android.support.design.widget.CoordinatorLayout>
