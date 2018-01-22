@@ -44,7 +44,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         TextView messageTextView, timeTextView, likes, unlikes,NameText;
         ImageView photoImageView;
         LinearLayout messageLayout2;
-
         LinearLayout messageLayout;
 
         SparkButton likeButton, unlikeButton;
@@ -96,6 +95,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         // - replace the contents of the view with that element
         final Post post = mDataset.get(position);
         Log.i(post.getText(), "standpoint po99");
+        Log.i("standpoint po98", post.getPosterId());
 
         if (post.getPhotoUrl() != null) {
             if (post.getText() == null) {
@@ -119,24 +119,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             holder.messageTextView.setText(post.getText());
 
         }
-        try {
-            Log.i(post.getPosterId(), "standpoint p124");
-        }
-        catch (Exception e){
-            Log.i("error", "standpoint p127");
-        }
         if (post.getPosterId().equals(MainActivity.mUserId)) {
-            Log.i(post.getPosterId(), "standpoint p137");
 
             holder.messageLayout.setGravity(RIGHT);
         } else {
-            Log.i(post.getPosterId(), "standpoint p151");
-            Log.i(MainActivity.mUserId, "standpoint p129");
             holder.messageLayout.setGravity(LEFT);
         }
 
-        if(post.getPosterName()!=null){
-            holder.NameText.setText(post.getPosterName());
+        if(post.getUser()!=null){
+            holder.NameText.setText(post.getUser());
+        }else{
+            holder.NameText.setText("anonymous");
         }
 
         holder.likes.setText(Integer.toString(post.getLikedUsers().size() - 1));
@@ -179,10 +172,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             public void onEventAnimationEnd(ImageView button, boolean buttonState) {
                 if (buttonState) {
                     // Button is active
-                    Log.i("end as true", "standpoint m205");
+//                    Log.i("end as true", "standpoint m205");
                 } else {
                     // Button is inactive
-                    Log.i("end as false", "standpoint m209");
+//                    Log.i("end as false", "standpoint m209");
 
                 }
 
@@ -343,9 +336,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     public void changeData(final String arrayName, String time, final ArrayList<String> getArrayList) {
-        System.out.println("standpoint p249");
 
-        Log.i(time, "standpoint m411");
+//        Log.i(time, "standpoint m411");
 
         Query query = MainActivity.mMessagesDatabaseReference.orderByChild("timeCurrent").equalTo(time);
         query.addListenerForSingleValueEvent(new ValueEventListener() {

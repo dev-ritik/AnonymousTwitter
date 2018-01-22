@@ -3,6 +3,8 @@ package com.example.android.anonymoustwitter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +15,11 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -31,6 +36,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -38,24 +44,30 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 
 public class LoginActivity extends AppCompatActivity {
 
     private CallbackManager mCallbackManager;
     private FirebaseAuth mAuth;
-    private Button signinButton, registerButton,signUpButton,cancelButton;
+    private Button signinButton, registerButton, signUpButton, cancelButton;
+    private ImageView dpButton;
     private SignInButton signInGoogleButton;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private LoginButton mloginButton;
-    private EditText userEmailId, userPassword,userPasswordRegistration,getUserPasswordRecheck,userEmailNew;
-    private InputMethodManager mgr,mgr1;
-    private LinearLayout signInMenu,signUpMenu;
+    private EditText userEmailId, userPassword, userPasswordRegistration, getUserPasswordRecheck, userEmailNew, UserName;
+    private InputMethodManager mgr, mgr1;
+    private LinearLayout signInMenu, signUpMenu;
     private ProgressBar mProgressBar;
+    private Uri selectedImageUri=null, downloadUrl=null;
+    private FirebaseUser user;
 
     private final static int RC_SIGN_IN = 1;
-
+    private static final int RC_PHOTO_PICKER = 2;
 
     @Override
     protected void onPause() {
@@ -77,17 +89,19 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mProgressBar=findViewById(R.id.progressBar);
+        mProgressBar = findViewById(R.id.progressBar);
 
-        signInMenu=findViewById(R.id.loginScreen);
-        signUpMenu=findViewById(R.id.registerScreen);
+        signInMenu = findViewById(R.id.loginScreen);
+        signUpMenu = findViewById(R.id.registerScreen);
 
-        signUpButton =findViewById(R.id.signUpDo);
-        cancelButton=findViewById(R.id.cancel);
+        signUpButton = findViewById(R.id.signUpDo);
+        cancelButton = findViewById(R.id.cancel);
+        dpButton = findViewById(R.id.dpButton);
 
-        userPasswordRegistration=findViewById(R.id.password2);
-        getUserPasswordRecheck =findViewById(R.id.password1);
-        userEmailNew=findViewById(R.id.userName);
+        userPasswordRegistration = findViewById(R.id.password2);
+        getUserPasswordRecheck = findViewById(R.id.password1);
+        userEmailNew = findViewById(R.id.userEmail);
+        UserName = findViewById(R.id.userName);
 
         signinButton = findViewById(R.id.signInButton);
         signinButton.setOnClickListener(new View.OnClickListener() {
@@ -105,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createAccount(userEmailNew.getText().toString(), userPasswordRegistration.getText().toString(),getUserPasswordRecheck.getText().toString());
+                createAccount(userEmailNew.getText().toString(), userPasswordRegistration.getText().toString(), getUserPasswordRecheck.getText().toString());
 
             }
         });
@@ -116,7 +130,6 @@ public class LoginActivity extends AppCompatActivity {
                 signInMenu.setVisibility(View.INVISIBLE);
                 signUpMenu.setVisibility(View.VISIBLE);
                 userEmailNew.setText(userEmailId.getText());
-                Log.i("creating started", "standpoint l97");
 
             }
         });
@@ -157,14 +170,10 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     Log.i("auth state null", "standpoint L79");
                 }
-//               updateUI();
             }
         };
         // Initialize Facebook Login button
         mCallbackManager = CallbackManager.Factory.create();
-
-//        mFacebookButton = findViewById(R.id.facebook_button);
-
 
         mloginButton = findViewById(R.id.login_button);
         mloginButton.setReadPermissions("email", "public_profile");
@@ -194,6 +203,17 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        dpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO: Fire an intent to show an image picker
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpej");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+            }
+        });
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -204,13 +224,12 @@ public class LoginActivity extends AppCompatActivity {
         // Configure Google Sign In
     }
 
-    private void createAccount(String email, String password,String recheck) {
+    private void createAccount(String email, String password, String recheck) {
         Log.i(email + " " + password, "standpoint L174");
 
         if (!validateForm()) {
             return;
         }
-//        showProgressDialog();
 
         mProgressBar.setVisibility(View.VISIBLE);
         mAuth.createUserWithEmailAndPassword(email, password)
@@ -218,14 +237,52 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+//                            FirebaseUser user = MainActivity.firebaseAuth.getCurrentUser();
                             signInMenu.setVisibility(View.VISIBLE);
                             signUpMenu.setVisibility(View.INVISIBLE);
                             // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Log.i(user.getEmail(), "standpoint L188");
+                            Log.i(selectedImageUri.toString(), "standpoint L228");
+                            user = mAuth.getCurrentUser();
+                            if (selectedImageUri != null) {
+                                if (downloadUrl != null) {
+                                    Log.i(downloadUrl.toString(), "standpoint L255");
+                                    Log.i("to signup", "standpoint L255");
+                                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                            .setDisplayName(UserName.getText().toString())
+                                            .setPhotoUri(downloadUrl)
+                                            .build();
+                                    Log.i(selectedImageUri.toString(), "standpoint L246");
+                                    user.updateProfile(profileUpdates)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Log.d("standpoint L251", "User profile successfully updated.");
+                                                        selectedImageUri=null;
+                                                        downloadUrl=null;
+                                                    }
+                                                }
+                                            });
+                                }
+                            } else {
+                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(UserName.getText().toString())
+                                        .build();
+                                Log.i(selectedImageUri.toString(), "standpoint L260");
+                                user.updateProfile(profileUpdates)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Log.d("standpoint L264", "User profile successfully updated.");
+                                                    selectedImageUri=null;
+                                                    downloadUrl=null;
+                                                }
+                                            }
+                                        });
+                            }
+                            Log.i(user.getDisplayName(), "standpoint L188");
                             mProgressBar.setVisibility(View.INVISIBLE);
-
-//                            updateUI(user);
                         } else {
                             signInMenu.setVisibility(View.INVISIBLE);
                             signUpMenu.setVisibility(View.VISIBLE);
@@ -234,8 +291,6 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                             mProgressBar.setVisibility(View.INVISIBLE);
-
-//                            updateUI(null);
                         }
 
                     }
@@ -270,12 +325,21 @@ public class LoginActivity extends AppCompatActivity {
             userEmailId.setError(null);
         }
 
+        String newUserName = UserName.getText().toString();
+
+        if (TextUtils.isEmpty(newUserName)) {
+            UserName.setError("Required");
+            valid = false;
+        } else {
+            UserName.setError(null);
+        }
+
         if (!password.equals(rePassword)) {
             Toast.makeText(LoginActivity.this, "Passwords doesn't match", Toast.LENGTH_SHORT).show();
             valid = false;
 
         }
-            return valid;
+        return valid;
 
     }
 
@@ -286,8 +350,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void signIn(String email, String password) {
 
-        Log.i(email, "signin");
-
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -296,13 +358,12 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.i("signInWithEmail:success", "standpoint L240");
                             FirebaseUser user = mAuth.getCurrentUser();
-//                                    updateUI(user);
+                            Log.i(user.getDisplayName(), "standpoint L310");
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.i("standpoint L245", task.getException().toString());
                             Toast.makeText(LoginActivity.this, "Login Id or Password is incorrect",
                                     Toast.LENGTH_SHORT).show();
-//                                    updateUI(null);
                         }
 
                         // ...
@@ -330,11 +391,28 @@ public class LoginActivity extends AppCompatActivity {
                 Log.i("", "Google sign in failed", e);
                 // ...
             }
+        } else if (requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK) {
+            selectedImageUri = data.getData();
+            Log.i(selectedImageUri.toString(), "standpoint m302");
+            dpButton.setImageURI(selectedImageUri);
+            if (selectedImageUri != null) {
+                signUpButton.setActivated(false);
+                StorageReference photoREf = MainActivity.mChatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
+//                              take last part of uri location link and make child of mChatPhotosStorageReference
+                photoREf.putFile(selectedImageUri).addOnSuccessListener(LoginActivity.this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    //                    upload file to firebase onsucess of upload
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        downloadUrl = taskSnapshot.getDownloadUrl();//url of uploaded image
+                        Log.i("success at profile up", "standpoint L255");
+
+                        signUpButton.setActivated(true);
+                    }
+                });
+            }
         }
-//        else {
-//            Toast.makeText(LoginActivity.this, "", Toast.LENGTH_SHORT).show();
-//        }
     }
+
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
         Log.i("standpoint L281", "firebaseAuthWithGoogle:" + account.getId());
@@ -349,7 +427,6 @@ public class LoginActivity extends AppCompatActivity {
                             Log.i("signInWithCrential:suce", "standpoint L290");
                             FirebaseUser user = mAuth.getCurrentUser();
                             mProgressBar.setVisibility(View.INVISIBLE);
-//                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.i("standpoint L295", "signInWithCredential:failure", task.getException());
@@ -370,12 +447,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-//        if(currentUser!= null){
-//            updateUI();
-//
-//        }
     }
 
     @Override
@@ -383,18 +454,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onResume();
         mAuth.addAuthStateListener(mAuthListener);
     }
-
-    private void updateUI() {
-        Toast.makeText(LoginActivity.this, "logged in!!", Toast.LENGTH_SHORT).show();
-        Intent intent2 = new Intent(getApplicationContext(), com.example.android.anonymoustwitter.MainActivity.class);
-        startActivity(intent2);
-    }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        // Pass the activity result back to the Facebook SDK
-//    }
 
     private void handleFacebookAccessToken(AccessToken token) {
         Log.d("", "handleFacebookAccessToken:" + token);
@@ -415,13 +474,11 @@ public class LoginActivity extends AppCompatActivity {
                             setResult(Activity.RESULT_OK, intent);
                             Toast.makeText(LoginActivity.this, "logged in", Toast.LENGTH_SHORT).show();
                             finish();
-//                            updateUI();
                         } else {
                             mloginButton.setEnabled(true);
                             // If sign in fails, display a message to the user.
                             Log.i("signInWithCredentl:fail", "standpoint L363");
                             Toast.makeText(LoginActivity.this, "Please use your google acount to signin", Toast.LENGTH_SHORT).show();
-//                            updateUI();
                         }
 
                     }

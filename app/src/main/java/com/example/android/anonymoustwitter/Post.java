@@ -10,36 +10,53 @@ public class Post {
     private String text;
     private String photoUrl;
     private String name;
-    private String userId;
+    private String posterId;
     private ArrayList<String> likedUsers;
     private ArrayList<String> unlikedUsers;
     private String time;
     private ArrayList<String> saveIt;
-
     public Post() {
-    }
-
-    public Post(String text, String photoUrl, String currentTime, String userID, ArrayList likers, ArrayList unlikers, ArrayList saveIt) {
-        this.text = text;
-        this.photoUrl = photoUrl;
-        this.time = currentTime;
-//        this.name = username;
-        this.likedUsers = likers;
-        this.unlikedUsers = unlikers;
-        this.userId = userID;
-        this.saveIt = saveIt;
+//        Log.i(posterId, "standpoint post43");
+//        Log.i(text, "standpoint post44");
+//        Log.i(photoUrl, "standpoint post45");
+//        Log.i(time, "standpoint post46");
+//        Log.i(saveIt.toString(), "standpoint post47");
+//        Log.i(likedUsers.toString(), "standpoint post48");
+//        Log.i(unlikedUsers.toString(), "standpoint post49");
+//        Log.i(name, "standpoint post50");
 
     }
 
-    public Post(String text, String photoUrl, String currentTime, String username,String userID, ArrayList likers, ArrayList unlikers,ArrayList saveIt) {
+//    public Post(String text, String photoUrl, String currentTime, String userID, ArrayList likers, ArrayList unlikers, ArrayList saveIt) {
+//        this.text = text;
+//        this.photoUrl = photoUrl;
+//        this.time = currentTime;
+////        this.name = username;
+//        this.likedUsers = likers;
+//        this.unlikedUsers = unlikers;
+//        this.posterId = userID;
+//        this.saveIt = saveIt;
+
+//    }
+
+    public Post(String text, String photoUrl, String currentTime, String username,String posterId, ArrayList likers, ArrayList unlikers,ArrayList saveIt) {
         this.text = text;
         this.photoUrl = photoUrl;
         this.time = currentTime;
         this.name = username;
         this.likedUsers = likers;
         this.unlikedUsers = unlikers;
-        this.userId = userID;
+        this.posterId = posterId;
         this.saveIt=saveIt;
+        Log.i(posterId, "standpoint post43");
+        Log.i(text, "standpoint post44");
+        Log.i(photoUrl, "standpoint post45");
+        Log.i(time, "standpoint post46");
+        Log.i(saveIt.toString(), "standpoint post47");
+        Log.i(likedUsers.toString(), "standpoint post48");
+        Log.i(unlikedUsers.toString(), "standpoint post49");
+        Log.i(name, "standpoint post50");
+
     }
 
 
@@ -52,21 +69,21 @@ public class Post {
     }
 
     public String getPosterId() {
-        Log.i(userId, "standpoint post55");
-        return userId;
+        Log.i(posterId, "standpoint post55");
+        return posterId;
     }
 
     public void setPosterId(String posterId) {
-            this.userId = userId;
+            this.posterId = posterId;
     }
 
-    public String getPosterName() {
-        return name;
-    }
-
-    public void setPosterName(String username){
-        this.name=username;
-    }
+//    public String getPosterName() {
+//        return name;
+//    }
+//
+//    public void setPosterName(String username){
+//        this.name=username;
+//    }
 
     public void setTimeCurrent(String time) {
         this.time = time;

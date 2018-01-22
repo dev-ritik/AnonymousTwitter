@@ -3,10 +3,10 @@
     android:shape="rectangle">
     <stroke
         android:width="3.5dp"
-        android:color="#90A4AE" />
+        android:color="#512DA8" />
 
     <solid
-        android:color="#EEEEEE"
+        android:color="#D1C4E9"
         />
 
     // Reduce the corner radius value
@@ -20,3 +20,24 @@
     </padding>
 
 </shape>
+    <!--<shape xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:shape="rectangle">-->
+    <!--<stroke-->
+    <!--android:width="3.5dp"-->
+    <!--android:color="#90A4AE" />-->
+
+    <!--<solid-->
+    <!--android:color="#EEEEEE"-->
+    <!--/>-->
+
+    <!--// Reduce the corner radius value-->
+    <!--<corners android:radius="12dp" />-->
+
+    <!--<padding-->
+    <!--android:left="18dp"-->
+    <!--android:top="10dp"-->
+    <!--android:right="18dp"-->
+    <!--android:bottom="10dp"    >-->
+    <!--</padding>-->
+
+    <!--</shape>-->

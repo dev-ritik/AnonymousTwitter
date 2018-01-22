@@ -8,11 +8,16 @@ package com.example.android.anonymoustwitter;
         import android.support.v7.widget.RecyclerView;
         import android.util.Log;
         import android.view.View;
+        import android.widget.ImageView;
         import android.widget.TextView;
 
+        import com.bumptech.glide.Glide;
         import com.google.firebase.database.ChildEventListener;
         import com.google.firebase.database.DataSnapshot;
         import com.google.firebase.database.DatabaseError;
+        import com.makeramen.roundedimageview.RoundedTransformationBuilder;
+        import com.squareup.picasso.Picasso;
+        import com.squareup.picasso.Transformation;
 
         import java.util.ArrayList;
 
@@ -44,11 +49,38 @@ public class ProfileActivity extends AppCompatActivity {
 
         mRecyclerView = findViewById(R.id.my_recycler_view);
         TextView userName = findViewById(R.id.userName);
+        ImageView profilePic=findViewById(R.id.profile_image);
         if(MainActivity.mUser!=null) {
             userName.setText(MainActivity.mUser);
         }
         else {
             userName.setVisibility(View.GONE);
+        }
+
+        try{
+            if(MainActivity.mUserProfile!=null) {
+                Log.i(MainActivity.mUserProfile.toString(),"standpoint pr60");
+//            Glide.with(profilePic.getContext())
+//                    .load(MainActivity.mUserProfile)
+//                    .into(profilePic);
+
+//                profilePic.setImageURI(MainActivity.mUserProfile);
+                Transformation transformation = new RoundedTransformationBuilder()
+                        .cornerRadiusDp(30)
+                        .oval(false)
+                        .build();
+                Picasso.with(ProfileActivity.this)
+                        .load(MainActivity.mUserProfile.toString())
+                        .transform(transformation)
+                        .into(profilePic);
+            }
+            else {
+                Log.i("profile pic=null","standpoint pr75");
+
+                profilePic.setImageResource(R.drawable.icon_profile_empty);
+            }
+        }catch (Exception e){
+            profilePic.setImageResource(R.drawable.icon_profile_empty);
         }
 
         TextView emailId = findViewById(R.id.email);

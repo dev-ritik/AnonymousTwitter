@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Anonymous Twitter</string>
+    <string name="app_name">Chat Buddy</string>
     <string name="sign_out">Sign Out</string>
     <string name="send_button_label">Send</string>
     <string name="facebook_application_id">2041343446079566</string>
