@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static String mUserId;
     public static String mUser;
+    public static Uri mUserProfile;
 
     private String mEmailId;
     private long count;
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseStorage mFirebaseStorage;
-    private StorageReference mChatPhotosStorageReference;
+    public static StorageReference mChatPhotosStorageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.mainactivity);
 
         mUserId = ANONYMOUS;
+        mUserProfile=null;
         mEmailId = "";
         count = 0;
 
@@ -261,8 +263,13 @@ public class MainActivity extends AppCompatActivity {
                 unlikers.add("1234");
                 favouriteArrayList.add("1234");
 
+//                Log.i(mUser,"standpoint m264");
+                mUser = mFirebaseAuth.getCurrentUser().getDisplayName();//send name and operate with db
+//                Log.i(mUser,"standpoint M266");
                 if (selectedImageUri != null) {
-                    Log.i(selectedImageUri.toString(), "standpoint m192");
+                    if(mUser==null){
+                        mUser=mFirebaseAuth.getCurrentUser().getEmail();
+                    }
                     imageLayout.setVisibility(View.INVISIBLE);
                     mProgressBar.setVisibility(View.VISIBLE);
                     mRecyclerView.setVisibility(View.VISIBLE);
@@ -273,8 +280,6 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             downloadUrl = taskSnapshot.getDownloadUrl();//url of uploaded image
-//                            Log.i(selectedImageUri.toString(),"standpoint m201");
-                            Log.i(mMessageEditText.getText().toString(), "standpoint m202");
                             mProgressBar.setVisibility(View.INVISIBLE);
                             likers = new ArrayList<>();
                             unlikers = new ArrayList<>();
@@ -308,23 +313,18 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 //to find if user is signed or not
                 if (mChildEventListener != null) {
-                    Log.i(mChildEventListener.toString(), "standpoint m203");
                 }
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     //user is signed
 //                    Toast.makeText(MainActivity.this, "Welcome to FriendlyChat!", Toast.LENGTH_SHORT).show();
-                    Log.i("user log in", "standpoint m200");
-                    onSignInitilize(user.getUid(), user.getEmail());
+                    onSignInitilize(user.getUid(), user.getEmail(),user.getPhotoUrl());
                     mUser = user.getDisplayName();//send name and operate with db
-//                    Log.i(user.getEmail(),"standpoint m202");//p
-//                    Log.i(user.getPhotoUrl().toString(),"standpoint m205");//p
-//                    Log.i(user.getUid(),"standpoint m206");//p
+                    Log.i(mUser,"standpoint M321");
 
                 } else {
                     //user signed out
                     onSignOutCleaner();
-
                     startActivityForResult((new Intent(getApplicationContext(), com.example.android.anonymoustwitter.LoginActivity.class)),
                             RC_SIGN_IN);
                     Snackbar snackbar = Snackbar.make(mainLayout, "Logged out successfully", Snackbar.LENGTH_SHORT);
@@ -382,6 +382,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.sign_out_menu:
                 mUserId = ANONYMOUS;
+                mUserProfile=null;
                 mEmailId = "";
                 posts.clear();
 //        mPostAdapter.clear();//clear adapter so that it doesn't holds any earlier data
@@ -390,11 +391,12 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.profile:
+                mUser = mFirebaseAuth.getCurrentUser().getDisplayName();//send name and operate with db
+                mUserProfile=mFirebaseAuth.getCurrentUser().getPhotoUrl();
                 Intent intent = new Intent(getApplicationContext(), com.example.android.anonymoustwitter.ProfileActivity.class);
-
                 intent.putExtra("email", mEmailId);
                 startActivity(intent);
-                System.out.println("standpoint m313");
+
                 return true;
 
 
@@ -414,7 +416,6 @@ public class MainActivity extends AppCompatActivity {
         posts.clear();
 //        mPostAdapter.clear();//clear all data stored in adapter
         mAdapter.notifyItemRangeRemoved(0, mAdapter.getItemCount());
-        Log.i("clear", "standpoint 263");
         //remove authentication
 
     }
@@ -433,9 +434,10 @@ public class MainActivity extends AppCompatActivity {
         //authenticate and carry
     }
 
-    private void onSignInitilize(String userid, String email) {
+    private void onSignInitilize(String userid, String email,Uri profilePic) {
         mUserId = userid;
         mEmailId = email;
+        mUserProfile=profilePic;
         attachDatabaseListener();//sync and download content and update adapter
 
     }
@@ -475,11 +477,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Log.i("onchildadded", "standpoint 1");
-//                    Log.i(dataSnapshot.getKey(), "standpoint 1");
 
                     //attached to all added child(all past and future child)
                     Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
-                    Log.i(post.getPosterId(), "standpoint m483");
                     posts.add(post);
 
                     mAdapter.notifyDataSetChanged();
@@ -517,9 +517,9 @@ public class MainActivity extends AppCompatActivity {
             };
             mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
             Log.i("child addeddd", "standpoint m610");
-            if (mChildEventListener != null) {
-                Log.i("mChildEventListener add", "standpoint 322");
-            }
+//            if (mChildEventListener != null) {
+//                Log.i("mChildEventListener add", "standpoint 322");
+//            }
         }
 
     }
@@ -529,7 +529,6 @@ public class MainActivity extends AppCompatActivity {
         if (mChildEventListener != null)
             mMessagesDatabaseReference.removeEventListener(mChildEventListener);
         mChildEventListener = null;
-        Log.i("mchild=null", "standpoint m622");
     }
 
     public String calculateTime() {
