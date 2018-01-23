@@ -241,7 +241,6 @@ public class LoginActivity extends AppCompatActivity {
                             signInMenu.setVisibility(View.VISIBLE);
                             signUpMenu.setVisibility(View.INVISIBLE);
                             // Sign in success, update UI with the signed-in user's information
-                            Log.i(selectedImageUri.toString(), "standpoint L228");
                             user = mAuth.getCurrentUser();
                             if (selectedImageUri != null) {
                                 if (downloadUrl != null) {
@@ -263,12 +262,28 @@ public class LoginActivity extends AppCompatActivity {
                                                     }
                                                 }
                                             });
+                                }else {
+                                    Log.i("to signup", "standpoint L266");
+                                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                            .setDisplayName(UserName.getText().toString())
+                                            .build();
+                                    Log.i(selectedImageUri.toString(), "standpoint L246");
+                                    user.updateProfile(profileUpdates)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Log.d("standpoint L251", "User profile successfully updated.");
+                                                        selectedImageUri=null;
+                                                        downloadUrl=null;
+                                                    }
+                                                }
+                                            });
                                 }
                             } else {
                                 UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                         .setDisplayName(UserName.getText().toString())
                                         .build();
-                                Log.i(selectedImageUri.toString(), "standpoint L260");
                                 user.updateProfile(profileUpdates)
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
