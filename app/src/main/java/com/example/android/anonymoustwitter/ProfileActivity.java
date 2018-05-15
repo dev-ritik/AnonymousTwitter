@@ -16,6 +16,7 @@ package com.example.android.anonymoustwitter;
 
         import java.util.ArrayList;
 
+        import static com.example.android.anonymoustwitter.MainActivity.mUserId;
         import static com.example.android.anonymoustwitter.MainActivity.mUsername;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -44,8 +45,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         mRecyclerView = findViewById(R.id.my_recycler_view);
         TextView userName = findViewById(R.id.userName);
-        if(MainActivity.mUser!=null) {
-            userName.setText(MainActivity.mUser);
+        if(MainActivity.mUserId!=null) {
+            userName.setText(MainActivity.mUsername);
         }
         else {
             userName.setVisibility(View.GONE);
@@ -74,10 +75,10 @@ public class ProfileActivity extends AppCompatActivity {
                     //attached to all added child(all past and future child)
                     Post post = dataSnapshot.getValue(Post.class);
                     Log.i(post.getSaveIt().get(post.getSaveIt().size() - 1), "standpoint p65");
-                    Log.i(mUsername, "standpoint pr66");
-                    Log.i(MainActivity.mUsername, "standpoint p67");
+                    Log.i(mUserId, "standpoint pr66");
+                    Log.i(MainActivity.mUserId, "standpoint p67");
 
-                    if (post.getSaveIt().contains(MainActivity.mUsername)) {
+                    if (post.getSaveIt().contains(MainActivity.mUserId)) {
                         posts.add(post);
                         Log.i("onitemadded", "standpoint pr71");
 

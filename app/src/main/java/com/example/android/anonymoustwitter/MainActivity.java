@@ -43,16 +43,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.varunest.sparkbutton.SparkButton;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.TimeZone;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_PHOTO_PICKER = 2;
     static boolean calledAlready = false;
 
-    private PostAdapter mPostAdapter;
     private ProgressBar mProgressBar;
     private ImageButton mPhotoPickerButton;
     private ImageView imageView;
@@ -85,19 +77,19 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> likers;
     ArrayList<String> unlikers;
     ArrayList<String> favouriteArrayList;
+    public static UserInfo userInfo;
 
     public static String mUsername;
-    public static String mUser;
-
+    public static String mUserId;
     private String mEmailId;
-    private long count;
+
     SwipeRefreshLayout mySwipeRefreshLayout;
-    private String topPostKey;
     private int itemPos = 0;
     private String messageKey, mPrevKey, mLastKey;
 
     private FirebaseDatabase mfirebaseDatabase;
     public static DatabaseReference mMessagesDatabaseReference;
+    public static DatabaseReference mUserDatabaseReference;
     public static ChildEventListener mChildEventListener;//to listen the changes in db
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -111,16 +103,17 @@ public class MainActivity extends AppCompatActivity {
 
         mUsername = ANONYMOUS;
         mEmailId = "";
-        count = 0;
+        mUserId = null;
 
-        if (!calledAlready)
-        {
+        if (!calledAlready) {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
             calledAlready = true;
         }
         mfirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
         mMessagesDatabaseReference = mfirebaseDatabase.getReference().child("input");
+        mUserDatabaseReference = mfirebaseDatabase.getReference().child("user");
+
         mChatPhotosStorageReference = mFirebaseStorage.getReference("chat_photos");
 
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -168,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                     //if swipe left
                     Log.i("swipped", "standpoint m175");
 
-                    if (posts.get(position).getPosterId().equals(mUsername)) {
+                    if (posts.get(position).getPosterId().equals(mUserId)) {
                         Log.i("swipped", "standpoint m177");
 
                         new AlertDialog.Builder(MainActivity.this) //alert for confirm to delete
@@ -289,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
                             unlikers.add("1234");
                             favouriteArrayList.add("1234");
                             imageView.setImageResource(0);
-                            Post post = new Post(mMessageEditText.getText().toString().trim(), downloadUrl.toString(), calculateTime(), mUsername, likers, unlikers, favouriteArrayList);
+                            Post post = new Post(mMessageEditText.getText().toString().trim(), downloadUrl.toString(), calculateTime(), mUserId, likers, unlikers, favouriteArrayList);
                             mMessagesDatabaseReference.push().setValue(post);
                             downloadUrl = null;
                             selectedImageUri = null;
@@ -298,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (mMessageEditText.getText().toString().equals("")) {
                     Toast.makeText(MainActivity.this, "Please enter some text", Toast.LENGTH_SHORT).show();
                 } else {
-                    Post post = new Post(mMessageEditText.getText().toString().trim(), null, calculateTime(), mUsername, likers, unlikers, favouriteArrayList);
+                    Post post = new Post(mMessageEditText.getText().toString().trim(), null, calculateTime(), mUserId, likers, unlikers, favouriteArrayList);
                     mMessagesDatabaseReference.push().setValue(post);
                 }
                 // Clear input box
@@ -320,12 +313,33 @@ public class MainActivity extends AppCompatActivity {
                     //user is signed
 //                    Toast.makeText(MainActivity.this, "Welcome to FriendlyChat!", Toast.LENGTH_SHORT).show();
                     Log.i("user log in", "standpoint m200");
-                    onSignInitilize(user.getUid(), user.getEmail());
-                    mUser = user.getDisplayName();//send name and operate with db
-//                    Log.i(user.getEmail(),"standpoint m202");//p
-//                    Log.i(user.getPhotoUrl().toString(),"standpoint m205");//p
-//                    Log.i(user.getUid(),"standpoint m206");//p
+                    onSignInitilize(user.getDisplayName(), user.getEmail(), user.getUid());
 
+                    Query query = mUserDatabaseReference.orderByChild("userId").equalTo(mUserId);
+                    query.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            long count = dataSnapshot.getChildrenCount();
+                            if (count == 0) {
+                                Log.i(mUserId, "point ma570");
+                                Log.i("seems new", "point ma558");
+
+                                ArrayList<String> notifications = new ArrayList<>();
+                                notifications.add("asdfgg");
+                                UserInfo userInfoNew = new UserInfo(mUsername, mUserId, mEmailId, notifications);
+                                mUserDatabaseReference.push().setValue(userInfoNew);
+                            } else {
+                                Log.i("point ma308", "child added");
+                                userInfo = dataSnapshot.getValue(UserInfo.class);//as Post has all the three required parameter
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
                 } else {
                     //user signed out
                     onSignOutCleaner();
@@ -339,67 +353,68 @@ public class MainActivity extends AppCompatActivity {
                     snackbar.show();
                 }
             }
-        };
+        }
+
+        ;
 
         mySwipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
+                new SwipeRefreshLayout.OnRefreshListener()
+
+                {
                     @Override
                     public void onRefresh() {
                         Log.i("point ma527", "onRefresh called from SwipeRefreshLayout");
                         itemPos = 0;
-                        if (topPostKey != null) {
-                            mMessagesDatabaseReference.orderByKey().endAt(mLastKey).limitToLast(7).addChildEventListener(new ChildEventListener() {
-                                @Override
-                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                    messageKey = dataSnapshot.getKey();
-                                    Log.i("point ma352", "Last Key : " + mLastKey + " | Prev Key : " + mPrevKey + " | Message Key : " + messageKey);
-                                    Post post = dataSnapshot.getValue(Post.class);
-                                    Log.i("point ma354", post.getText());
+                        mMessagesDatabaseReference.orderByKey().endAt(mLastKey).limitToLast(7).addChildEventListener(new ChildEventListener() {
+                            @Override
+                            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                messageKey = dataSnapshot.getKey();
+                                Log.i("point ma352", "Last Key : " + mLastKey + " | Prev Key : " + mPrevKey + " | Message Key : " + messageKey);
+                                Post post = dataSnapshot.getValue(Post.class);
+                                Log.i("point ma354", post.getText());
 
-                                    if (!mPrevKey.equals(messageKey)) {
-                                        if (topPostKey == null) topPostKey = dataSnapshot.getKey();
+                                if (!mPrevKey.equals(messageKey)) {
 
-                                        Log.i("point ma356", post.getText());
-                                        posts.add(itemPos++, post);
+                                    Log.i("point ma356", post.getText());
+                                    posts.add(itemPos++, post);
 
-                                    } else {
-                                        mLayoutManager.scrollToPositionWithOffset(itemPos - 1, 0);
-                                        mPrevKey = mLastKey;
-
-                                    }
-
-                                    if (itemPos == 1) {
-
-                                        mLastKey = messageKey;
-
-                                    }
-
-                                    mAdapter.notifyDataSetChanged();
-                                    mySwipeRefreshLayout.setRefreshing(false);
+                                } else {
+                                    mLayoutManager.scrollToPositionWithOffset(itemPos - 1, 0);
+                                    mPrevKey = mLastKey;
 
                                 }
 
-                                @Override
-                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                                if (itemPos == 1) {
+
+                                    mLastKey = messageKey;
 
                                 }
 
-                                @Override
-                                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                                mAdapter.notifyDataSetChanged();
+                                mySwipeRefreshLayout.setRefreshing(false);
 
-                                }
+                            }
 
-                                @Override
-                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                            @Override
+                            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                                }
+                            }
 
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
+                            @Override
+                            public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-                                }
-                            });
-                        }
+                            }
+
+                            @Override
+                            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                     }
                 });
 
@@ -500,9 +515,10 @@ public class MainActivity extends AppCompatActivity {
         //authenticate and carry
     }
 
-    private void onSignInitilize(String username, String email) {
+    private void onSignInitilize(String username, String email, String uid) {
         mUsername = username;
         mEmailId = email;
+        mUserId = uid;
         attachDatabaseListener();//sync and download content and update adapter
 
     }
@@ -532,62 +548,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-//        if (mChildEventListener != null) {
-//            Log.i(mChildEventListener.toString(), "standpoint m293");
-//        }
-//        if (mChildEventListener == null) {
-//            Log.i("mChildEventListener", "standpoint 298");
-//            mChildEventListener = new ChildEventListener() {//working with db after authentication
-//                @Override
-//                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                    Log.i("onchildadded", "standpoint 1");
-////                    Log.i(dataSnapshot.getKey(), "standpoint 1");
-//
-//                    //attached to all added child(all past and future child)
-//                    Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
-//                    posts.add(post);
-//
-//                    mAdapter.notifyDataSetChanged();
-//                }
-//
-//                @Override
-//                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//                    // changed content of a child
-//                    Log.i("child changed", "standpoint m370");
-//                }
-//
-//                @Override
-//                public void onChildRemoved(DataSnapshot dataSnapshot) {
-//                    // child deleted
-//                    Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
-//
-//                    for (Iterator<Post> iterator = posts.iterator(); iterator.hasNext(); ) {
-//                        if (iterator.next().getTimeCurrent() == post.getTimeCurrent())
-//                            iterator.remove();
-//                    }
-//                    Log.i(Integer.toString(posts.size()), "standpoint m389");
-//                    mAdapter.notifyDataSetChanged();
-//
-//                }
-//
-//                @Override
-//                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//                    //moved position of a child
-//                }
-//
-//                @Override
-//                public void onCancelled(DatabaseError databaseError) {
-//                    // error or permission denied
-//                }
-//            };
-//            mMessagesDatabaseReference.addChildEventListener(mChildEventListener);
-//            Log.i("child addeddd", "standpoint m610");
-//            if (mChildEventListener != null) {
-//                Log.i("mChildEventListener add", "standpoint 322");
-//            }
-//        }
-
         mMessagesDatabaseReference.limitToLast(6).
 
                 addChildEventListener(new ChildEventListener() {
@@ -605,7 +565,6 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         Log.i(dataSnapshot.getKey(), "standpoint 1");
-                        if (topPostKey == null) topPostKey = dataSnapshot.getKey();
 
 //                    //attached to all added child(all past and future child)
                         Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter

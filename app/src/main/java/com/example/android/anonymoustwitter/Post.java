@@ -13,6 +13,7 @@ public class Post {
     private ArrayList<String> unlikedUsers;
     private String time;
     private ArrayList<String> saveIt;
+    private String key;
 
     public Post() {
     }
@@ -118,6 +119,13 @@ public class Post {
     public void setSaveIt(ArrayList<String> saveIt) {
 //        System.out.println("standpoint 84");
         this.saveIt = saveIt;
+    }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }
