@@ -46,9 +46,12 @@ import com.google.firebase.storage.UploadTask;
 import com.varunest.sparkbutton.SparkButton;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -60,12 +63,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1;
     private static final int RC_PHOTO_PICKER = 2;
+    static boolean calledAlready = false;
 
-    //demo changes
-    private static final int kk = 0;
-
-
-    //    private ListView mMessageListView;
     private PostAdapter mPostAdapter;
     private ProgressBar mProgressBar;
     private ImageButton mPhotoPickerButton;
@@ -76,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
     private CoordinatorLayout imageLayout;
     private Uri selectedImageUri, downloadUrl;
     private LinearLayout input;
-    private SparkButton button1;
 
     private RecyclerView mRecyclerView;
     public static RecyclerView.Adapter mAdapter;
@@ -115,7 +113,11 @@ public class MainActivity extends AppCompatActivity {
         mEmailId = "";
         count = 0;
 
-        //mfirebaseDatabase.setPersistenceEnabled(true);
+        if (!calledAlready)
+        {
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+            calledAlready = true;
+        }
         mfirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
         mMessagesDatabaseReference = mfirebaseDatabase.getReference().child("input");
@@ -653,7 +655,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String calculateTime() {
-        return DateFormat.getDateTimeInstance().format(new Date());
+//        return DateFormat.getDateTimeInstance().format(new Date());
+        return android.text.format.DateFormat.format("MMM dd, yyyy hh:mm:ss aaa", new java.util.Date()).toString();
+//        String dt="11-01-2016 5:8 AM";
+//        DateFormat format = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss aaa");
+//        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+//        return format.toString();
 
     }
 
