@@ -1,4 +1,3 @@
-
 package com.example.android.anonymoustwitter;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ public class Post {
     public Post() {
     }
 
-    public Post(String text, String photoUrl, String currentTime, String userID, ArrayList likers, ArrayList unlikers, ArrayList saveIt) {
+    public Post(String text, String photoUrl, String currentTime, String userID, ArrayList likers, ArrayList unlikers, ArrayList saveIt,String key) {
         this.text = text;
         this.photoUrl = photoUrl;
         this.time = currentTime;
@@ -27,19 +26,8 @@ public class Post {
         this.unlikedUsers = unlikers;
         this.userId = userID;
         this.saveIt = saveIt;
-
+        this.key=key;
     }
-
-//    public Post(String text, String photoUrl, String currentTime, String username, ArrayList likers, ArrayList unlikers,ArrayList saveIt) {
-//        this.text = text;
-//        this.photoUrl = photoUrl;
-//        this.time = currentTime;
-//        this.name = username;
-//        this.likedUsers = likers;
-//        this.unlikedUsers = unlikers;
-//        this.saveIt=saveIt;
-//    }
-
 
     public String getText() {
         return text;
@@ -62,9 +50,6 @@ public class Post {
     }
 
     public String getTimeCurrent() {
-//        System.out.println(time);
-//        System.out.println("standpoint 56");
-
         return time;
     }
 

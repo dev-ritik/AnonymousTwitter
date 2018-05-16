@@ -1,5 +1,7 @@
 package com.example.android.anonymoustwitter;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -15,28 +17,26 @@ public class UserInfo {
 
     private String userName;
     private String userId;
-    private String dpUrl;
     private String emailId;
-    private ArrayList<String> favouriteList;
+    private ArrayList<String> favourites;
 
     public UserInfo() {
     }
 
-    public UserInfo(String username, String userid, String emailId, ArrayList<String> favouriteList) {
-        this.userName = username;
-        this.userId = userid;
+
+    public UserInfo(String userName, String userId, String emailId, ArrayList favourites) {
+        this.userName = userName;
+        this.userId = userId;
         this.emailId = emailId;
-        this.favouriteList = favouriteList;
-
+        this.favourites = favourites;
     }
 
-
-    public ArrayList<String> getfavouriteList() {
-        return favouriteList;
+    public ArrayList<String> getFavourites() {
+        return favourites;
     }
 
-    public void setfavouriteList(ArrayList<String> favouriteList) {
-        this.favouriteList = favouriteList;
+    public void setFavourites(ArrayList<String> favourites) {
+        this.favourites = favourites;
     }
 
     public String getUserName() {
@@ -53,14 +53,6 @@ public class UserInfo {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getdpUrl() {
-        return dpUrl;
-    }
-
-    public void setdpUrl(String dpUrl) {
-        this.dpUrl = dpUrl;
     }
 
     public String getEmailId() {

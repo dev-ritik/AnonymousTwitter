@@ -231,7 +231,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(DEFAULT_MSG_LENGTH_LIMIT)});
-
+//        mMessageEditText.setO
+//                .setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mLayoutManager.scrollToPositionWithOffset(posts.size() - 1, 0);
+//            }
+//        });
         cancelButton.setOnClickListener(new View.OnClickListener()
 
         {
@@ -273,7 +279,6 @@ public class MainActivity extends AppCompatActivity {
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             downloadUrl = taskSnapshot.getDownloadUrl();//url of uploaded image
 //                            Log.i(selectedImageUri.toString(),"standpoint m201");
-                            Log.i(mMessageEditText.getText().toString(), "standpoint m202");
                             mProgressBar.setVisibility(View.INVISIBLE);
                             likers = new ArrayList<>();
                             unlikers = new ArrayList<>();
@@ -282,8 +287,12 @@ public class MainActivity extends AppCompatActivity {
                             unlikers.add("1234");
                             favouriteArrayList.add("1234");
                             imageView.setImageResource(0);
-                            Post post = new Post(mMessageEditText.getText().toString().trim(), downloadUrl.toString(), calculateTime(), mUserId, likers, unlikers, favouriteArrayList);
-                            mMessagesDatabaseReference.push().setValue(post);
+                            String key = mMessagesDatabaseReference.push().getKey();
+                            mMessagesDatabaseReference.setValue("ritik");
+
+                            Post post = new Post(mMessageEditText.getText().toString().trim(), downloadUrl.toString(), calculateTime(), mUserId, likers, unlikers, favouriteArrayList,key);
+
+                            mMessagesDatabaseReference.child(key).setValue(post);
                             downloadUrl = null;
                             selectedImageUri = null;
                         }
@@ -291,8 +300,9 @@ public class MainActivity extends AppCompatActivity {
                 } else if (mMessageEditText.getText().toString().equals("")) {
                     Toast.makeText(MainActivity.this, "Please enter some text", Toast.LENGTH_SHORT).show();
                 } else {
-                    Post post = new Post(mMessageEditText.getText().toString().trim(), null, calculateTime(), mUserId, likers, unlikers, favouriteArrayList);
-                    mMessagesDatabaseReference.push().setValue(post);
+                    String key = mMessagesDatabaseReference.push().getKey();
+                    Post post = new Post(mMessageEditText.getText().toString().trim(), null, calculateTime(), mUserId, likers, unlikers, favouriteArrayList,key);
+                    mMessagesDatabaseReference.child(key).setValue(post);
                 }
                 // Clear input box
                 mMessageEditText.setText("");
@@ -311,35 +321,83 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     //user is signed
-//                    Toast.makeText(MainActivity.this, "Welcome to FriendlyChat!", Toast.LENGTH_SHORT).show();
                     Log.i("user log in", "standpoint m200");
                     onSignInitilize(user.getDisplayName(), user.getEmail(), user.getUid());
 
                     Query query = mUserDatabaseReference.orderByChild("userId").equalTo(mUserId);
-                    query.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            long count = dataSnapshot.getChildrenCount();
-                            if (count == 0) {
-                                Log.i(mUserId, "point ma570");
-                                Log.i("seems new", "point ma558");
+                    query
+                            .addChildEventListener(new ChildEventListener() {
+                                @Override
+                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                    long count = dataSnapshot.getChildrenCount();
+                                    Log.i("point ma328", count + "");
+                                    Log.i("point ma329", dataSnapshot.getValue().toString());
+                                    if (count == 0) {
+                                        Log.i("seems new", "point ma558");
 
-                                ArrayList<String> notifications = new ArrayList<>();
-                                notifications.add("asdfgg");
-                                UserInfo userInfoNew = new UserInfo(mUsername, mUserId, mEmailId, notifications);
-                                mUserDatabaseReference.push().setValue(userInfoNew);
-                            } else {
-                                Log.i("point ma308", "child added");
-                                userInfo = dataSnapshot.getValue(UserInfo.class);//as Post has all the three required parameter
+                                        ArrayList<String> favorite = new ArrayList<>();
+                                        favorite.add("asdfgg");
+                                        UserInfo userInfo1 = new UserInfo(mUsername, mUserId, mEmailId, favorite);
+                                        mUserDatabaseReference.push().setValue(userInfo1);
+                                    } else {
+                                        Log.i("seems old", "point ma336");
+                                        userInfo = dataSnapshot.getValue(UserInfo.class);//as Post has all the three required parameter
+                                        Log.i(dataSnapshot.getValue().toString(), "point ma338");
+                                        Log.i(userInfo.getEmailId(), "point ma3381");
+                                        Log.i(userInfo.getUserId(), "point ma338");
+                                        Log.i(userInfo.getFavourites().toString(), "point ma338");
 
-                            }
-                        }
+                                    }
+                                }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                                @Override
+                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                        }
-                    });
+                                }
+
+                                @Override
+                                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                }
+
+                                @Override
+                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+//                            .addValueEventListener(new ValueEventListener() {
+//                        @Override
+//                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                            long count = dataSnapshot.getChildrenCount();
+//                            Log.i("point ma328",count+"");
+//                            if (count == 0) {
+//                                Log.i("seems new", "point ma558");
+//
+//                                ArrayList<String> favorite = new ArrayList<>();
+//                                favorite.add("asdfgg");
+//                                UserInfo userInfo1 = new UserInfo(mUsername, mUserId, mEmailId, favorite);
+//                                mUserDatabaseReference.push().setValue(userInfo1);
+//                            }
+//                            else {
+//                                Log.i("seems old", "point ma336");
+//                                userInfo = dataSnapshot.getValue(UserInfo.class);//as Post has all the three required parameter
+//                                Log.i(dataSnapshot.getValue().toString(),"point ma338");
+//                                Log.i(userInfo.getEmailId(),"point ma3381");
+//                                Log.i(userInfo.getUserId(),"point ma338");
+//
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(DatabaseError databaseError) {
+//
+//                        }
+//                    });
                 } else {
                     //user signed out
                     onSignOutCleaner();
@@ -353,9 +411,7 @@ public class MainActivity extends AppCompatActivity {
                     snackbar.show();
                 }
             }
-        }
-
-        ;
+        };
 
         mySwipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener()
@@ -450,6 +506,53 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    public void asd(View v) {
+//        mMessagesDatabaseReference.orderByKey().startAt("-LCYm4gD73JyC-JD5RBe").limitToLast(1).addChildEventListener(new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//                Log.i("onchildadded", "point pr102");
+//
+//                Post post = dataSnapshot.getValue(Post.class);
+//                Log.i(post.getText(), "point pr65");
+//                Log.i(mUserId, "standpoint pr66");
+//                Log.i(MainActivity.mUserId, "standpoint p67");
+//
+//                if (post.getSaveIt().contains(MainActivity.mUserId)) {
+//                    favouritePosts.add(post);
+//                    Log.i("onitemadded", "standpoint pr71");
+//
+//                }
+//
+//                mAdapter.notifyDataSetChanged();
+//
+//            }
+//
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//
+//            }
+//
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+
+        String key = mMessagesDatabaseReference.push().getKey();
+        Log.i("point ma551", key);
+        mMessagesDatabaseReference.child(key).setValue("ritik");
     }
 
     @Override

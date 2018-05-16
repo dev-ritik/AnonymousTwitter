@@ -346,10 +346,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     public void changefavouriteData(String key, boolean add) {
-        Log.i(key, "point pa358");
+        Log.i(key, "point ma358");
         if (add)
-            MainActivity.userInfo.getfavouriteList().add(key);
-        else MainActivity.userInfo.getfavouriteList().remove(key);
+            MainActivity.userInfo.getFavourites().add(key);
+        else MainActivity.userInfo.getFavourites().remove(key);
 
         Query query = MainActivity.mUserDatabaseReference.orderByChild("userId").equalTo(MainActivity.mUserId);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -357,7 +357,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
 
-                    child.getRef().child("favouriteList").setValue(MainActivity.userInfo);
+                    child.getRef().child("favourites").setValue(MainActivity.userInfo.getFavourites());
                 }
             }
 
