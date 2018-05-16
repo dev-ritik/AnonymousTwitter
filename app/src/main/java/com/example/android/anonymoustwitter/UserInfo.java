@@ -1,9 +1,6 @@
 package com.example.android.anonymoustwitter;
 
-import android.util.Log;
-
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by ritik on 26-01-2018.

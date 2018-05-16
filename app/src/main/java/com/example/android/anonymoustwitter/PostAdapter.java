@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
@@ -23,6 +24,8 @@ import java.util.ArrayList;
 
 import static android.view.Gravity.LEFT;
 import static android.view.Gravity.RIGHT;
+import static com.example.android.anonymoustwitter.MainActivity.mMessagesDatabaseReference;
+import static com.example.android.anonymoustwitter.MainActivity.userInfo;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     private ArrayList<Post> mDataset;
@@ -85,7 +88,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         final Post post = mDataset.get(position);
-        Log.i(post.getText(), "standpoint po99");
+//        Log.i(post.getText(), "standpoint po99");
 
         if (post.getPhotoUrl() != null) {
             if (post.getText() == null) {
@@ -111,11 +114,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         }
 
         if (post.getPosterId().equals(MainActivity.mUserId)) {
-            Log.i(post.getPosterId(), "standpoint p137");
 
             holder.messageLayout.setGravity(RIGHT);
         } else {
-            Log.i(post.getPosterId(), "standpoint p151");
             holder.messageLayout.setGravity(LEFT);
         }
 
@@ -176,14 +177,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                     post.getLikedUsers().remove(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.likeButton.setChecked(false);
-                    changeData("likedUsers", post.getTimeCurrent(), post.getLikedUsers());
+                    changeData("likedUsers", post.getKey(), post.getLikedUsers());
                 } else if (!post.getLikedUsers().contains(MainActivity.mUserId) && !post.getUnlikedUsers().contains(MainActivity.mUserId)) { //trying to like from neutral
                     Log.i("like from neutral", "standpoint po202");
 
                     post.getLikedUsers().add(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.likeButton.setChecked(true);
-                    changeData("likedUsers", post.getTimeCurrent(), post.getLikedUsers());
+                    changeData("likedUsers", post.getKey(), post.getLikedUsers());
                 } else if (!post.getLikedUsers().contains(MainActivity.mUserId) && post.getUnlikedUsers().contains(MainActivity.mUserId)) { //trying to like from unlike
                     Log.i("like from unlike", "standpoint po209");
                     post.getLikedUsers().add(MainActivity.mUserId);
@@ -191,8 +192,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.likeButton.setChecked(true);
                     holder.unlikeButton.setChecked(false);
-                    changeData("likedUsers", post.getTimeCurrent(), post.getLikedUsers());
-                    changeData("unlikedUsers", post.getTimeCurrent(), post.getUnlikedUsers());
+                    changeData("likedUsers", post.getKey(), post.getLikedUsers());
+                    changeData("unlikedUsers", post.getKey(), post.getUnlikedUsers());
                 }
                 if (buttonState) {
                     // Button is active
@@ -244,13 +245,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                     post.getUnlikedUsers().remove(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.unlikeButton.setChecked(false);
-                    changeData("unlikedUsers", post.getTimeCurrent(), post.getUnlikedUsers());
+                    changeData("unlikedUsers", post.getKey(), post.getUnlikedUsers());
                 } else if (!post.getLikedUsers().contains(MainActivity.mUserId) && !post.getUnlikedUsers().contains(MainActivity.mUserId)) { //trying to unlike from neutral
                     Log.i("unlike from neutral", "standpoint po305");
                     post.getUnlikedUsers().add(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.unlikeButton.setChecked(true);
-                    changeData("unlikedUsers", post.getTimeCurrent(), post.getUnlikedUsers());
+                    changeData("unlikedUsers", post.getKey(), post.getUnlikedUsers());
                 } else if (post.getLikedUsers().contains(MainActivity.mUserId) && !post.getUnlikedUsers().contains(MainActivity.mUserId)) { //trying to unlike from like
                     Log.i("unlike from like", "standpoint po312");
                     post.getLikedUsers().remove(MainActivity.mUserId);
@@ -258,8 +259,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.likeButton.setChecked(false);
                     holder.unlikeButton.setChecked(true);
-                    changeData("likedUsers", post.getTimeCurrent(), post.getLikedUsers());
-                    changeData("unlikedUsers", post.getTimeCurrent(), post.getUnlikedUsers());
+                    changeData("likedUsers", post.getKey(), post.getLikedUsers());
+                    changeData("unlikedUsers", post.getKey(), post.getUnlikedUsers());
                 }
                 holder.likes.setText(Integer.toString(post.getLikedUsers().size() - 1));
                 holder.unlikes.setText(Integer.toString(post.getUnlikedUsers().size() - 1));
@@ -271,11 +272,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         String[] currentTimeArray = android.text.format.DateFormat.format("MMM dd, yyyy hh:mm:ss aaa", new java.util.Date()).toString().split(" ");
 
         if (!timeArray[2].equals(currentTimeArray[2])) {
-//            System.out.println("stadpoint124");
 
             holder.timeTextView.setText(timeArray[0] + " " + timeArray[1] + " " + timeArray[2] + "\n" + timeArray[3] + " " + timeArray[4]);
         } else {
-//            System.out.println("stadpoint128");
             if (!timeArray[0].equals(currentTimeArray[0]) || !timeArray[1].equals(currentTimeArray[1])) {
                 holder.timeTextView.setText(timeArray[0] + " " + timeArray[1] + "\n" + timeArray[3] + " " + timeArray[4]);
             } else {
@@ -297,19 +296,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             public void onClick(View v) {
                 if (!post.getSaveIt().contains(MainActivity.mUserId)) {
                     post.getSaveIt().add(MainActivity.mUserId);
-                    changeData("saveIt", post.getTimeCurrent(), post.getSaveIt());
-                    changefavouriteData(post.getKey(),true);
+                    changeData("saveIt", post.getKey(), post.getSaveIt());
+                    changefavouriteData(post.getKey(), true);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.favouritePost.setChecked(true);
-                    System.out.println("stadpoint p437");
+//                    System.out.println("stadpoint p437");
 
                 } else {
                     post.getSaveIt().remove(MainActivity.mUserId);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.favouritePost.setChecked(false);
-                    changeData("saveIt", post.getTimeCurrent(), post.getSaveIt());
-                    changefavouriteData(post.getKey(),false);
-                    System.out.println("stadpoint p443");
+                    changeData("saveIt", post.getKey(), post.getSaveIt());
+                    changefavouriteData(post.getKey(), false);
+//                    System.out.println("stadpoint p443");
                 }
             }
         });
@@ -322,13 +321,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         return mDataset.size();
     }
 
-    public void changeData(final String arrayName, String time, final ArrayList<String> getArrayList) {
-        System.out.println("standpoint p249");
-
-        Log.i(time, "standpoint m411");
-
-        Query query = MainActivity.mMessagesDatabaseReference.orderByChild("timeCurrent").equalTo(time);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+    public void changeData(final String arrayName, String key, final ArrayList<String> getArrayList) {
+        mMessagesDatabaseReference.orderByKey().startAt(key).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
@@ -340,13 +334,29 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
+//        }) Query query = MainActivity.mMessagesDatabaseReference.orderByChild("timeCurrent").equalTo(time);
+//        query.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot child : dataSnapshot.getChildren()) {
+//                    ArrayList<String> likers = (ArrayList<String>) child.child(arrayName).getValue();
+//
+//                    child.getRef().child(arrayName).setValue(getArrayList);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
     }
 
     public void changefavouriteData(String key, boolean add) {
         Log.i(key, "point ma358");
+        Log.i(MainActivity.userInfo.getFavourites().toString(), "point ma358");
         if (add)
             MainActivity.userInfo.getFavourites().add(key);
         else MainActivity.userInfo.getFavourites().remove(key);

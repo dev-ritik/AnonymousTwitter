@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import static com.example.android.anonymoustwitter.MainActivity.mMessagesDatabaseReference;
-import static com.example.android.anonymoustwitter.MainActivity.mUserId;
 import static com.example.android.anonymoustwitter.MainActivity.userInfo;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -66,55 +65,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-//        if (mChildEventListenerProfile == null) {
-//            Log.i("mChildEvenProfe", "standpoint pr49");
-//            mChildEventListenerProfile = new ChildEventListener() {//working with db after authentication
-//                @Override
-//                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                    Log.i("onchildadded", "standpoint pr61");
-//
-//                    attached to all added child(all past and future child)
-//                    Post post = dataSnapshot.getValue(Post.class);
-//                    Log.i(post.getSaveIt().get(post.getSaveIt().size() - 1), "standpoint p65");
-//                    Log.i(mUserId, "standpoint pr66");
-//                    Log.i(MainActivity.mUserId, "standpoint p67");
-//
-//                    if (post.getSaveIt().contains(MainActivity.mUserId)) {
-//                        posts.add(post);
-//                        Log.i("onitemadded", "standpoint pr71");
-//
-//                    }
-//
-//                    mAdapter.notifyDataSetChanged();
-//                }
-//
-//                @Override
-//                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//                     changed content of a child
-//                }
-//
-//                @Override
-//                public void onChildRemoved(DataSnapshot dataSnapshot) {
-//                     child deleted
-//                }
-//
-//                @Override
-//                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//                    moved position of a child
-//                }
-//
-//                @Override
-//                public void onCancelled(DatabaseError databaseError) {
-//                     error or permission denied
-//                }
-//
-//            };
-//            MainActivity.mMessagesDatabaseReference.addChildEventListener(mChildEventListenerProfile);
-//            if (mChildEventListenerProfile != null) {
-//                Log.i("mChildEventLisrPro add", "standpoint pr85");
-//
-//            }
-//        }
 
         for (int i = 0; i < userInfo.getFavourites().size(); i++) {
             mMessagesDatabaseReference.orderByKey().startAt(userInfo.getFavourites().get(i)).limitToFirst(1).addChildEventListener(new ChildEventListener() {
@@ -124,11 +74,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                     Post post = dataSnapshot.getValue(Post.class);
                     Log.i(post.getText(), "point pr65");
-                    Log.i(MainActivity.mUserId, "standpoint p67");
-
                     favouritePosts.add(post);
-                    Log.i("onitemadded", "standpoint pr71");
-
 
                     mAdapter.notifyDataSetChanged();
 
@@ -141,10 +87,9 @@ public class ProfileActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
-                    Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
 
                     for (Iterator<Post> iterator = favouritePosts.iterator(); iterator.hasNext(); ) {
-                        if (iterator.next().getTimeCurrent() == post.getTimeCurrent())
+                        if (iterator.next().getKey() == dataSnapshot.getKey())
                             iterator.remove();
                     }
                     mAdapter.notifyDataSetChanged();

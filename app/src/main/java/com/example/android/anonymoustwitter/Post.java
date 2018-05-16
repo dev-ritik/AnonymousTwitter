@@ -29,6 +29,17 @@ public class Post {
         this.key=key;
     }
 
+    public Post(String text, String photoUrl, String currentTime, String userID, ArrayList likers, ArrayList unlikers, ArrayList saveIt) {
+        this.text = text;
+        this.photoUrl = photoUrl;
+        this.time = currentTime;
+//        this.name = username;
+        this.likedUsers = likers;
+        this.unlikedUsers = unlikers;
+        this.userId = userID;
+        this.saveIt = saveIt;
+    }
+
     public String getText() {
         return text;
     }
