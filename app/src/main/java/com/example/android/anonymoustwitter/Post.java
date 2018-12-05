@@ -17,7 +17,7 @@ public class Post {
     public Post() {
     }
 
-    public Post(String text, String photoUrl, String currentTime, String userID, ArrayList likers, ArrayList unlikers, ArrayList saveIt,String key) {
+    public Post(String text, String photoUrl, String currentTime, String userID, ArrayList<String> likers, ArrayList<String> unlikers, ArrayList<String> saveIt, String key) {
         this.text = text;
         this.photoUrl = photoUrl;
         this.time = currentTime;
@@ -26,10 +26,10 @@ public class Post {
         this.unlikedUsers = unlikers;
         this.userId = userID;
         this.saveIt = saveIt;
-        this.key=key;
+        this.key = key;
     }
 
-    public Post(String text, String photoUrl, String currentTime, String userID, ArrayList likers, ArrayList unlikers, ArrayList saveIt) {
+    public Post(String text, String photoUrl, String currentTime, String userID, ArrayList<String>  likers, ArrayList<String> unlikers, ArrayList<String> saveIt) {
         this.text = text;
         this.photoUrl = photoUrl;
         this.time = currentTime;

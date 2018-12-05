@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -61,10 +62,9 @@ public class MainActivity extends AppCompatActivity {
     static boolean calledAlready = false;
 
     private ProgressBar mProgressBar;
-    private ImageButton mPhotoPickerButton;
     private ImageView imageView;
     private EditText mMessageEditText;
-    private ImageButton mSendButton, cancelButton;
+    private ImageButton mSendButton, cancelButton, mPhotoPickerButton;
     private CoordinatorLayout mainLayout;
     private CoordinatorLayout imageLayout;
     private Uri selectedImageUri;
@@ -90,13 +90,11 @@ public class MainActivity extends AppCompatActivity {
     private int itemPos = 0;
     private String messageKey, mPrevKey, mLastKey;
 
-    private FirebaseDatabase mfirebaseDatabase;
     public static DatabaseReference mMessagesDatabaseReference;
     public static DatabaseReference mUserDatabaseReference;
     private ChildEventListener refreshChildListener;//to listen the changes in db
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private FirebaseStorage mFirebaseStorage;
     private StorageReference mChatPhotosStorageReference;
 
     @Override
@@ -112,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
             FirebaseDatabase.getInstance().setPersistenceEnabled(true);
             calledAlready = true;
         }
-        mfirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseStorage = FirebaseStorage.getInstance();
+        FirebaseDatabase mfirebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseStorage mFirebaseStorage = FirebaseStorage.getInstance();
         mMessagesDatabaseReference = mfirebaseDatabase.getReference().child("input");
         mUserDatabaseReference = mfirebaseDatabase.getReference().child("user");
 
@@ -121,17 +119,17 @@ public class MainActivity extends AppCompatActivity {
 
         mFirebaseAuth = FirebaseAuth.getInstance();
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-        mPhotoPickerButton = (ImageButton) findViewById(R.id.photoPickerButton);
-        mMessageEditText = (EditText) findViewById(R.id.messageEditText);
+        mProgressBar = findViewById(R.id.progressBar);
+        mRecyclerView = findViewById(R.id.my_recycler_view);
+        mPhotoPickerButton = findViewById(R.id.photoPickerButton);
+        mMessageEditText = findViewById(R.id.messageEditText);
         mSendButton = findViewById(R.id.sendButton);
         cancelButton = findViewById(R.id.cancel);
         mainLayout = findViewById(R.id.main_content);
         imageView = findViewById(R.id.inputImage);
         imageLayout = findViewById(R.id.imageLayout);
         input = findViewById(R.id.linearLayout);
-        mySwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        mySwipeRefreshLayout = findViewById(R.id.swiperefresh);
 
         childEventListenersList = new ArrayList<>();
         posts = new ArrayList<>();
@@ -156,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 // Row is swiped from recycler view
                 // remove it from adapter
 
-                Log.i("swipped", "standpoint m170");
+                Log.i("point m170", "swipped");
                 final int position = viewHolder.getAdapterPosition(); //get position which is swipe
 
                 if (direction == ItemTouchHelper.RIGHT || direction == ItemTouchHelper.LEFT) {
@@ -178,19 +176,20 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         mAdapter.notifyItemRemoved(position);    //item removed from recylcerview
-                                        System.out.println("standpoint m185");
+                                        System.out.println("point m185");
                                         mMessagesDatabaseReference.orderByKey().startAt(posts.get(position).getKey()).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                                     child.getRef().removeValue();
                                                 }
                                             }
 
                                             @Override
-                                            public void onCancelled(DatabaseError databaseError) {
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
                                             }
+
                                         });
                                         posts.remove(position);  //then remove item
 
@@ -220,7 +219,6 @@ public class MainActivity extends AppCompatActivity {
         {
             @Override
             public void onClick(View view) {
-                // TODO: Fire an intent to show an image picker
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/jpej");
                 intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
@@ -247,7 +245,6 @@ public class MainActivity extends AppCompatActivity {
         {//send button
             @Override
             public void onClick(View view) {
-                // TODO: Send messages on click
 
                 likers = new ArrayList<>();
                 unlikers = new ArrayList<>();
@@ -258,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
                 favouriteArrayList.add("1234");
 
                 if (selectedImageUri != null) {
-                    Log.i(selectedImageUri.toString(), "standpoint m192");
+                    Log.i("point m192", selectedImageUri.toString());
                     imageLayout.setVisibility(View.INVISIBLE);
                     mProgressBar.setVisibility(View.VISIBLE);
                     mRecyclerView.setVisibility(View.VISIBLE);
@@ -266,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
                     photoREf.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
                         public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                            Log.i("point", "then: ");
                             if (!task.isSuccessful()) {
                                 Toast.makeText(MainActivity.this, "error while uploading", Toast.LENGTH_SHORT).show();
                             }
@@ -318,52 +316,11 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     //user is signed
-                    Log.i("user log in", "standpoint m200");
-                    onSignInitilize(user.getDisplayName(), user.getEmail(), user.getUid());
-
+                    Log.i("point m200", "user log in" + mUserId + " " + user + " " + user.getUid());
+                    onSignInitialize(user.getDisplayName(), user.getEmail(), user.getUid());
+                    Log.i("point m320", "onAuthStateChanged: " + mUserId);
                     Query query = mUserDatabaseReference.orderByChild("userId").equalTo(mUserId);
-                    query.addChildEventListener(new ChildEventListener() {
-                        @Override
-                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                            long count = dataSnapshot.getChildrenCount();
-                            Log.i("point ma328", count + dataSnapshot.getValue().toString());
-                            if (count == 0) {
-                                Log.i("seems new", "point ma558");
-
-                                ArrayList<String> favorite = new ArrayList<>();
-                                favorite.add("asfgg");
-                                userInfo = new UserInfo(mUsername, mUserId, mEmailId, favorite);
-                                mUserDatabaseReference.push().setValue(userInfo);
-                            } else {
-                                Log.i("seems old", "point ma336");
-                                userInfo = dataSnapshot.getValue(UserInfo.class);//as Post has all the three required parameter
-                                Log.i(dataSnapshot.getValue().toString(), "point ma338");
-                                Log.i(userInfo.getEmailId(), "point ma3381");
-                                Log.i(userInfo.getUserId(), "point ma338");
-
-                            }
-                        }
-
-                        @Override
-                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                        }
-
-                        @Override
-                        public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                        }
-
-                        @Override
-                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
+                    query.addValueEventListener(asdfg);
                 } else {
                     //user signed out
                     onSignOutCleaner();
@@ -389,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
 
                         refreshChildListener = new ChildEventListener() {
                             @Override
-                            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String s) {
                                 messageKey = dataSnapshot.getKey();
                                 Log.i("point ma352", "Last Key : " + mLastKey + " | Prev Key : " + mPrevKey + " | Message Key : " + messageKey);
                                 Post post = dataSnapshot.getValue(Post.class);
@@ -418,12 +375,12 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
                             }
 
                             @Override
-                            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                                 Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
 
                                 for (Iterator<Post> iterator = posts.iterator(); iterator.hasNext(); ) {
@@ -435,12 +392,12 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String s) {
 
                             }
 
                             @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
                             }
                         };
@@ -452,6 +409,35 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private ValueEventListener asdfg = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            long count = dataSnapshot.getChildrenCount();
+            Log.i("point ma328", count + " " + dataSnapshot + "");
+            if (count == 0) {
+                Log.i("point ma558", "seems new");
+
+                ArrayList<String> favorite = new ArrayList<>();
+                favorite.add("asfgg");
+                userInfo = new UserInfo(mUsername, mUserId, mEmailId, favorite);
+                mUserDatabaseReference.push().setValue(userInfo);
+            } else {
+//                userInfo = dataSnapshot.getValue(UserInfo.class);//as Post has all the three required parameter
+                for (DataSnapshot dsp : dataSnapshot.getChildren()) {
+                    userInfo = dsp.getValue(UserInfo.class); //add result into array list
+
+                }
+                Log.i("point ma338", dataSnapshot + "");
+                Log.i("point ma3381", userInfo.getEmailId());
+
+            }
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {//signing prosses result called before onResume
@@ -477,7 +463,6 @@ public class MainActivity extends AppCompatActivity {
             imageLayout.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.INVISIBLE);
             selectedImageUri = data.getData();
-            Log.i(selectedImageUri.toString(), "standpoint m302");
             imageView.setImageURI(selectedImageUri);
 
         }
@@ -512,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
 
                 intent.putExtra("email", mEmailId);
                 startActivity(intent);
-                System.out.println("standpoint m313");
+                System.out.println("point m313");
                 return true;
 
 
@@ -527,12 +512,12 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         if (mAuthStateListener != null)
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
-        Log.i("onpause", "standpoint m309");
+        Log.i("point m309", "onpause");
         detachDatabaseReadListener();
         posts.clear();
 //        mPostAdapter.clear();//clear all data stored in adapter
         mAdapter.notifyItemRangeRemoved(0, mAdapter.getItemCount());
-        Log.i("clear", "standpoint 263");
+        Log.i("point 263", "clear");
         //remove authentication
 
     }
@@ -540,12 +525,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i("resume", "standpoint m323");
+        Log.i("point m323", "resume");
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
         //authenticate and carry
     }
 
-    private void onSignInitilize(String username, String email, String uid) {
+    private void onSignInitialize(String username, String email, String uid) {
         mUsername = username;
         mEmailId = email;
         mUserId = uid;
@@ -565,7 +550,7 @@ public class MainActivity extends AppCompatActivity {
     private void attachDatabaseListener() {
         mMessagesDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 System.out.println("We're done loading the initial " + dataSnapshot.getChildrenCount() + " items");
                 input.setVisibility(View.VISIBLE);
                 mProgressBar.setVisibility(View.INVISIBLE);
@@ -573,14 +558,14 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
 
         mMessagesDatabaseReference.limitToLast(6).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String s) {
 
                 itemPos++;
 
@@ -592,7 +577,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-                Log.i(dataSnapshot.getKey(), "point ma597");
+                Log.i( "point ma597",dataSnapshot.getKey());
 
 //                    //attached to all added child(all past and future child)
                 Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
@@ -606,35 +591,32 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String s) {
 
             }
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
-                Log.i(dataSnapshot.getKey(), "point ma618");
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+//                Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
+                Log.i("point ma618",dataSnapshot.getKey() );
 
                 for (Iterator<Post> iterator = posts.iterator(); iterator.hasNext(); ) {
 //
                     if (iterator.next().getKey().equals(dataSnapshot.getKey())) {
                         iterator.remove();
-                        Log.i("yeah", "point ma623");
                     }
                 }
 
-                Log.i(Integer.toString(posts.size()), "point ma626");
                 mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String s) {
 
             }
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
@@ -645,7 +627,6 @@ public class MainActivity extends AppCompatActivity {
         if (refreshChildListener != null)
             mMessagesDatabaseReference.removeEventListener(refreshChildListener);
         refreshChildListener = null;
-        Log.i("mchild=null", "standpoint m622");
     }
 
     public String calculateTime() {

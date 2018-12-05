@@ -30,11 +30,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private Button signinButton, registerButton, signUpButton, cancelButton;
-    private SignInButton signInGoogleButton;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private LoginButton mloginButton;
     private EditText userEmailId, userPassword, userPasswordRegistration, getUserPasswordRecheck, userEmailNew;
-    private InputMethodManager mgr, mgr1;
     private LinearLayout signInMenu, signUpMenu;
     private ProgressBar mProgressBar;
     private SimpleGoogleLogin googleLogin;
@@ -84,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void resultSuccessful(FirebaseUser registeredUser) {
                         mProgressBar.setVisibility(View.INVISIBLE);
-                        Log.i("signInWithEmail:success", "standpoint L240");
+                        Log.i("point la86", "resultSuccessful: ");
                     }
 
                     @Override
@@ -102,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void resultError(Exception errorResult) {
                         mProgressBar.setVisibility(View.INVISIBLE);
-                        Log.i("standpoint L245", errorResult.toString());
+                        errorResult.printStackTrace();
                         Toast.makeText(LoginActivity.this, "Login Id or Password is incorrect",
                                 Toast.LENGTH_SHORT).show();
                     }
@@ -155,7 +153,7 @@ public class LoginActivity extends AppCompatActivity {
                         signInMenu.setVisibility(View.INVISIBLE);
                         signUpMenu.setVisibility(View.VISIBLE);
                         // If sign in fails, display a message to the user.
-                        Log.i("crteUserWithEmail:fail", "standpoint L193");
+                        Log.i("point la157", "resultError: ");
                         Toast.makeText(LoginActivity.this, "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
                         mProgressBar.setVisibility(View.INVISIBLE);
@@ -196,7 +194,6 @@ public class LoginActivity extends AppCompatActivity {
                 signInMenu.setVisibility(View.INVISIBLE);
                 signUpMenu.setVisibility(View.VISIBLE);
                 userEmailNew.setText(userEmailId.getText());
-                Log.i("creating started", "standpoint l97");
 
             }
         });
@@ -213,11 +210,10 @@ public class LoginActivity extends AppCompatActivity {
         userPassword = findViewById(R.id.password);
 
         if (!userPassword.getText().toString().isEmpty()) {
-            mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             mgr.hideSoftInputFromWindow(userPassword.getWindowToken(), 0);
 
-            mgr1 = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            mgr1.hideSoftInputFromWindow(getUserPasswordRecheck.getWindowToken(), 0);
+            mgr.hideSoftInputFromWindow(getUserPasswordRecheck.getWindowToken(), 0);
         }
 
         mAuth = FirebaseAuth.getInstance();
@@ -234,7 +230,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "logged in", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
-                    Log.i("auth state null", "standpoint L79");
+                    Log.i("point L79","auth state null");
                 }
             }
         };
@@ -243,7 +239,7 @@ public class LoginActivity extends AppCompatActivity {
         mloginButton = findViewById(R.id.login_button);
         signInFacebook();
 
-        signInGoogleButton = findViewById(R.id.signInGoogle);
+        SignInButton signInGoogleButton = findViewById(R.id.signInGoogle);
         signInGoogleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -254,7 +250,7 @@ public class LoginActivity extends AppCompatActivity {
                 googleLogin.setOnGoogleLoginResult(new SimpleGoogleLogin.OnGoogleLoginResult() {
                     @Override
                     public void resultSuccessful(FirebaseUser registeredUser) {
-                        Log.i("signInWithCrential:suce", "standpoint L290");
+                        Log.i("point 254", "resultSuccessful: ");
                         mProgressBar.setVisibility(View.INVISIBLE);
                     }
 
@@ -278,7 +274,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void resultError(Exception errorResult) {
-                        Log.i("", "Google sign in failed", errorResult);
+                        errorResult.printStackTrace();
                         mProgressBar.setVisibility(View.INVISIBLE);
                     }
                 });
@@ -302,7 +298,7 @@ public class LoginActivity extends AppCompatActivity {
             public void resultActualLoggedIn(FirebaseUser registeredUser) {
                 mloginButton.setEnabled(true);
                 // Sign in success, update UI with the signed-in user's information
-                Log.i("signInWthCredntialscess", "standpoint L350");
+                Log.i("point 302", "resultActualLoggedIn: ");
                 mProgressBar.setVisibility(View.INVISIBLE);
 
                 Intent intent = new Intent(getApplicationContext(), com.example.android.anonymoustwitter.ProfileActivity.class);
@@ -317,7 +313,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void resultCancel() {
                 mProgressBar.setVisibility(View.INVISIBLE);
-                Log.d("cancelled!!", "facebook:onCancel");
+                Log.i("point 316", "facebook:onCancel");
                 mloginButton.setEnabled(true);
             }
 
@@ -336,7 +332,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void resultError(Exception errorResult) {
                 mProgressBar.setVisibility(View.INVISIBLE);
-                Log.i("error!!", "facebook:onError", errorResult);
+                Log.i("point 335", "facebook:onError", errorResult);
                 mloginButton.setEnabled(true);
                 Toast.makeText(LoginActivity.this, "Please use your google account to signin", Toast.LENGTH_SHORT).show();
             }
