@@ -30,7 +30,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton mSendButton, cancelButton;
     private CoordinatorLayout mainLayout;
     private CoordinatorLayout imageLayout;
-    private Uri selectedImageUri, downloadUrl;
+    private Uri selectedImageUri;
     private LinearLayout input;
 
     private RecyclerView mRecyclerView;
@@ -137,8 +139,6 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new PostAdapter(posts);
 
         mRecyclerView.setAdapter(mAdapter);
-
-//        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -238,7 +238,6 @@ public class MainActivity extends AppCompatActivity {
                 imageLayout.setVisibility(View.INVISIBLE);
                 mRecyclerView.setVisibility(View.VISIBLE);
 
-                downloadUrl = null;
                 selectedImageUri = null;
             }
         });
@@ -263,41 +262,47 @@ public class MainActivity extends AppCompatActivity {
                     imageLayout.setVisibility(View.INVISIBLE);
                     mProgressBar.setVisibility(View.VISIBLE);
                     mRecyclerView.setVisibility(View.VISIBLE);
-                    StorageReference photoREf = mChatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
-//            //take last part of uri location link and make child of mChatPhotosStorageReference
-                    photoREf.putFile(selectedImageUri).addOnSuccessListener(MainActivity.this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        //                    upload file to firebase onsucess of upload
+                    final StorageReference photoREf = mChatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
+                    photoREf.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            downloadUrl = taskSnapshot.getDownloadUrl();//url of uploaded image
-//                            Log.i(selectedImageUri.toString(),"standpoint m201");
-                            mProgressBar.setVisibility(View.INVISIBLE);
-                            likers = new ArrayList<>();
-                            unlikers = new ArrayList<>();
-                            favouriteArrayList = new ArrayList<>();
-                            likers.add("1234");
-                            unlikers.add("1234");
-                            favouriteArrayList.add("1234");
-                            imageView.setImageResource(0);
-//                            String key = mMessagesDatabaseReference.push().getKey();
+                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                            if (!task.isSuccessful()) {
+                                Toast.makeText(MainActivity.this, "error while uploading", Toast.LENGTH_SHORT).show();
+                            }
 
-//                            Post post = new Post(mMessageEditText.getText().toString().trim(), downloadUrl.toString(), calculateTime(), mUserId, likers, unlikers, favouriteArrayList, key);
-                            Post post = new Post(mMessageEditText.getText().toString().trim(), downloadUrl.toString(), calculateTime(), mUserId, likers, unlikers, favouriteArrayList);
+                            // Continue with the task to get the download URL
+                            return photoREf.getDownloadUrl();
+                        }
+                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Uri> task) {
+                            if (task.isSuccessful()) {
+                                Uri downloadUri = task.getResult();
+                                String downloadURL = downloadUri.toString();
+                                Log.i("point m201", selectedImageUri.toString());
+                                mProgressBar.setVisibility(View.INVISIBLE);
+                                likers = new ArrayList<>();
+                                unlikers = new ArrayList<>();
+                                favouriteArrayList = new ArrayList<>();
+                                likers.add("1234");
+                                unlikers.add("1234");
+                                favouriteArrayList.add("1234");
+                                imageView.setImageResource(0);
+                                Post post = new Post(mMessageEditText.getText().toString().trim(), downloadURL, calculateTime(), mUserId, likers, unlikers, favouriteArrayList);
 
-//                            mMessagesDatabaseReference.child(key).setValue(post);
+                                mMessagesDatabaseReference.push().setValue(post);
+                                selectedImageUri = null;
+                            } else {
+                                Toast.makeText(MainActivity.this, "error while uploading", Toast.LENGTH_SHORT).show();
 
-                            mMessagesDatabaseReference.push().setValue(post);
-                            downloadUrl = null;
-                            selectedImageUri = null;
+                            }
                         }
                     });
+
                 } else if (mMessageEditText.getText().toString().equals("")) {
                     Toast.makeText(MainActivity.this, "Please enter some text", Toast.LENGTH_SHORT).show();
                 } else {
-//                    String key = mMessagesDatabaseReference.push().getKey();
-//                    Post post = new Post(mMessageEditText.getText().toString().trim(), null, calculateTime(), mUserId, likers, unlikers, favouriteArrayList, key);
                     Post post = new Post(mMessageEditText.getText().toString().trim(), null, calculateTime(), mUserId, likers, unlikers, favouriteArrayList);
-//                    mMessagesDatabaseReference.child(key).setValue(post);
                     mMessagesDatabaseReference.push().setValue(post);
                 }
                 // Clear input box

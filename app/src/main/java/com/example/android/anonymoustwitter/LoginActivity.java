@@ -4,10 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -21,6 +20,7 @@ import com.example.android.loginlibrary.SimpleEmailLogin;
 import com.example.android.loginlibrary.SimpleFacebookLogin;
 import com.example.android.loginlibrary.SimpleGoogleLogin;
 import com.example.android.loginlibrary.SimpleRegistration;
+import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.common.SignInButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -88,6 +88,18 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     @Override
+                    public void noAccountFound(Exception e) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "no account found", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void invalidCredentials(Exception e) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "wrong password or this is a google or facebook logged in account", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
                     public void resultError(Exception errorResult) {
                         mProgressBar.setVisibility(View.INVISIBLE);
                         Log.i("standpoint L245", errorResult.toString());
@@ -96,10 +108,17 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void wrongCrudentials(String errorMessage) {
+                    public void networkError(Exception e) {
                         mProgressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(LoginActivity.this, "Invalid input Id or password", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "network error occurred", Toast.LENGTH_SHORT).show();
                     }
+
+                    @Override
+                    public void wrongCredentials(String s, String s1) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, s + s1, Toast.LENGTH_SHORT).show();
+                    }
+
                 });
                 login.attemptLogin(LoginActivity.this, userEmailId.getText().toString(), userPassword.getText().toString());
             }
@@ -120,6 +139,18 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     @Override
+                    public void sameEmailError(Exception e) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "Account exists with same email Id", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void networkError(Exception e) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "network error occurred", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
                     public void resultError(Exception errorResult) {
                         signInMenu.setVisibility(View.INVISIBLE);
                         signUpMenu.setVisibility(View.VISIBLE);
@@ -131,18 +162,29 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     @Override
+                    public void profileUpdateError(Exception e) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "some error occurred while updating username and/or profile pic", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
                     public void resultName(FirebaseUser registeredUser) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "name updated(user already registered", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void resultDp(Uri dpLink) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "DP link updated(user already registered", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
-                    public void wrongCrudentials(String errorMessage) {
+                    public void wrongCredentials(String s, String s1) {
                         mProgressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(LoginActivity.this, "Invalid input Id or password", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, s + s1, Toast.LENGTH_SHORT).show();
                     }
+
                 });
                 register.attemptRegistration(LoginActivity.this, userEmailNew.getText().toString(), userPasswordRegistration.getText().toString(), getUserPasswordRecheck.getText().toString(), null, null);
             }
@@ -217,6 +259,24 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     @Override
+                    public void signinCancelledByUser(Exception e) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "sign-in cancelled by user", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void accountCollisionError(Exception e) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "account exists with same email Id", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void networkError(Exception e) {
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, "network error occurred", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
                     public void resultError(Exception errorResult) {
                         Log.i("", "Google sign in failed", errorResult);
                         mProgressBar.setVisibility(View.INVISIBLE);
@@ -228,49 +288,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private boolean validateForm() {
-        boolean valid = true;
-
-        if (TextUtils.isEmpty(userEmailNew.getText().toString())) {
-            userEmailNew.setError("Required");
-            valid = false;
-        } else {
-            userEmailId.setError(null);
-        }
-
-        String password = userPasswordRegistration.getText().toString();
-        if (TextUtils.isEmpty(password)) {
-            userPasswordRegistration.setError("Required");
-            valid = false;
-        } else {
-            userPassword.setError(null);
-        }
-        String rePassword = getUserPasswordRecheck.getText().toString();
-
-        if (TextUtils.isEmpty(rePassword)) {
-            getUserPasswordRecheck.setError("Required");
-            valid = false;
-        } else {
-            userEmailId.setError(null);
-        }
-
-        if (!password.equals(rePassword)) {
-            Toast.makeText(LoginActivity.this, "Passwords doesn't match", Toast.LENGTH_SHORT).show();
-            valid = false;
-
-        }
-        return valid;
-
-    }
-
     private void signInFacebook() {
 
         facebookLogin = new SimpleFacebookLogin(this);
         facebookLogin.setOnFacebookLoginResult(new SimpleFacebookLogin.OnFacebookLoginResult() {
             @Override
-            public void resultFacebookLoggedIn() {
+            public void resultFacebookLoggedIn(LoginResult loginResult) {
                 mProgressBar.setVisibility(View.VISIBLE);
-                Log.i("got that", "facebook:onSuccess:");
+                Log.i("point 305", "resultFacebookLoggedIn: Facebook login successful, yet to authenticate Firebase");
             }
 
             @Override
@@ -297,6 +322,18 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
+            public void accountCollisionError(Exception e) {
+                mProgressBar.setVisibility(View.VISIBLE);
+                Toast.makeText(LoginActivity.this, "account already exists with the different sign-in credentials", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void networkError(Exception e) {
+                mProgressBar.setVisibility(View.VISIBLE);
+                Toast.makeText(LoginActivity.this, "network error occurred", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
             public void resultError(Exception errorResult) {
                 mProgressBar.setVisibility(View.INVISIBLE);
                 Log.i("error!!", "facebook:onError", errorResult);
@@ -304,8 +341,6 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "Please use your google account to signin", Toast.LENGTH_SHORT).show();
             }
         });
-        Log.i("point la437", facebookLogin.toString());
-        Log.i("point la438", mloginButton.toString());
         facebookLogin.attemptFacebookLogin(mloginButton);
 
     }
