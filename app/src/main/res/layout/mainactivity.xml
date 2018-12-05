@@ -88,7 +88,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:orientation="horizontal"
-            android:visibility="invisible">
+            >
 
             <ImageButton
                 android:id="@+id/photoPickerButton"
@@ -127,7 +127,7 @@
             android:indeterminate="true"
             android:indeterminateTint="#90A4AE"
             android:indeterminateTintMode="src_atop"
-            android:visibility="visible" />
+            android:visibility="invisible" />
     </RelativeLayout>
 
     <Button

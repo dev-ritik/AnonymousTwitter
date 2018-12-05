@@ -20,13 +20,14 @@ import com.varunest.sparkbutton.SparkButton;
 import com.varunest.sparkbutton.SparkEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.view.Gravity.LEFT;
 import static android.view.Gravity.RIGHT;
 import static com.example.android.anonymoustwitter.MainActivity.mMessagesDatabaseReference;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
-    private ArrayList<Post> mDataset;
+    private List<Post> mDataset;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -63,8 +64,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public PostAdapter(ArrayList<Post> myDataset) {
-        mDataset = myDataset;
+//    public PostAdapter(ArrayList<Post> myDataset) {
+//        mDataset = myDataset;
+//    }
+
+    public PostAdapter() {
     }
 
     // Create new views (invoked by the layout manager)
@@ -79,17 +83,93 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         return new ViewHolder(v);
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
+
+//    void swapForecast(final List<Post> posts) {
+//        // If there was no forecast data, then recreate all of the list
+//        if (mDataset == null) {
+//            mDataset = posts;
+//            notifyDataSetChanged();
+//        } else {
+//            Log.i("point", "swapForecast: " + posts.size());
+//            Log.i("point", "swapForecast: " + mDataset.size());
+//            Log.i("point", "swapForecast: " + (mDataset == posts));
+//            /*
+//             * Otherwise we use DiffUtil to calculate the changes and update accordingly. This
+//             * shows the four methods you need to override to return a DiffUtil callback. The
+//             * old list is the current list stored in mDataset, where the new list is the new
+//             * values passed in from the observing the database.
+//             */
+//
+//            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+//                @Override
+//                public int getOldListSize() {
+//                    return mDataset.size();
+//                }
+//
+//                @Override
+//                public int getNewListSize() {
+//                    return posts.size();
+//                }
+//
+//                @Override
+//                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+//                    Boolean asd = mDataset.get(oldItemPosition).getKey().equals(
+//                            posts.get(newItemPosition).getKey());
+//                    Log.i("point", "areItemsTheSame: " + oldItemPosition + " " + mDataset.get(oldItemPosition).getText());
+//                    Log.i("point", "areItemsTheSame: " + newItemPosition + " " + mDataset.get(newItemPosition).getText());
+//                    Log.i("point", "areItemsTheSame: " + asd);
+//                    return asd;
+//                }
+//
+//                @Override
+//                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+//                    Post newWeather = posts.get(newItemPosition);
+//                    Post oldWeather = mDataset.get(oldItemPosition);
+//                    Log.i("point", "areContentsTheSame: " + newItemPosition + " " + newWeather);
+//                    Log.i("point", "areContentsTheSame: " + oldItemPosition + " " + oldWeather);
+//                    return newWeather.getKey().equals(oldWeather.getKey());
+//                }
+//            });
+//            Log.i("point", "swapForecast: " + "passed!!");
+////            mDataset = posts;
+//            mDataset=new ArrayList<>(posts);
+//            result.dispatchUpdatesTo(PostAdapter.this);
+//
+//            if (posts.size() == 6) {
+//
+//                Log.i("point", "swapForecast: " + "enter exp");
+//                Log.i("point", "swapForecast: " + posts.size() + " " + mDataset.size());
+//                posts.add(new Post());
+//                Log.i("point", "swapForecast: " + posts.size() + " " + mDataset.size());
+//
+//            }
+//        }
+//    }
+
+
+    void swapForecast(final List<Post> posts) {
+        // If there was no forecast data, then recreate all of the list
+        if (mDataset == null) {
+            mDataset = posts;
+            notifyDataSetChanged();
+        } else {
+//            Log.i("point", "swapForecast: " + posts.size());
+//            Log.i("point", "swapForecast: " + mDataset.size());
+//            Log.i("point", "swapForecast: " + (mDataset == posts));
+//
+            mDataset = posts;
+            notifyDataSetChanged();
+        }
+    }
+
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         final Post post = mDataset.get(position);
-//        Log.i(post.getText(), "standpoint po99");
 
         if (post.getPhotoUrl() != null) {
             if (post.getText() == null) {
-//                Log.i(post.getText(), "standpoint p100");
                 holder.messageTextView.setVisibility(View.GONE);
                 holder.photoImageView.setVisibility(View.VISIBLE);
                 Glide.with(holder.photoImageView.getContext())
@@ -140,7 +220,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.likeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("like button pressed", "standpoint m167");
                 holder.likeButton.setAnimationSpeed(1f);
                 holder.likeButton.playAnimation();
 
@@ -155,15 +234,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
             @Override
             public void onEventAnimationEnd(ImageView button, boolean buttonState) {
-                if (buttonState) {
-                    // Button is active
-                    Log.i("end as true", "standpoint m205");
-                } else {
-                    // Button is inactive
-                    Log.i("end as false", "standpoint m209");
-
-                }
-
             }
 
             @Override
@@ -210,7 +280,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.unlikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("unlike button pressed", "standpoint po167");
                 holder.unlikeButton.setAnimationSpeed(1f);
                 holder.unlikeButton.playAnimation();
 
@@ -224,14 +293,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
             @Override
             public void onEventAnimationEnd(ImageView button, boolean buttonState) {
-                if (buttonState) {
-                    // Button is active
-                    Log.i("end as true", "standpoint po205");
-                } else {
-                    // Button is inactive
-                    Log.i("end as false", "standpoint po209");
 
-                }
             }
 
             @Override
@@ -281,11 +343,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
         if (post.getSaveIt().contains(MainActivity.mUserId)) {
             holder.favouritePost.setChecked(true);
-            System.out.println("stadpoint p427");
 
         } else {
             holder.favouritePost.setChecked(false);
-            System.out.println("stadpoint p431");
         }
 
         holder.favouritePost.setOnClickListener(new View.OnClickListener() {
@@ -297,7 +357,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                     changefavouriteData(post.getKey(), true);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.favouritePost.setChecked(true);
-//                    System.out.println("stadpoint p437");
 
                 } else {
                     post.getSaveIt().remove(MainActivity.mUserId);
@@ -305,16 +364,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                     holder.favouritePost.setChecked(false);
                     changeData("saveIt", post.getKey(), post.getSaveIt());
                     changefavouriteData(post.getKey(), false);
-//                    System.out.println("stadpoint p443");
                 }
             }
         });
 
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
+        if (mDataset == null) return 0;
         return mDataset.size();
     }
 
@@ -352,8 +410,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     }
 
     public void changefavouriteData(String key, boolean add) {
-        Log.i(key, "point ma358");
-        Log.i(MainActivity.userInfo.getFavourites().toString(), "point ma358");
+        Log.i(key, "point pa358");
         if (add)
             MainActivity.userInfo.getFavourites().add(key);
         else MainActivity.userInfo.getFavourites().remove(key);

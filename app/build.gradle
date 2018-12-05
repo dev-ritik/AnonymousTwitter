@@ -59,6 +59,9 @@ dependencies {
 
     implementation 'com.firebaseui:firebase-ui-auth:4.0.1'
 
+    //livedata
+    implementation "androidx.lifecycle:lifecycle-livedata:2.0.0"
+
 }
 
 apply plugin: 'com.google.gms.google-services'
