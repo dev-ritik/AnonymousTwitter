@@ -1,14 +1,14 @@
-package com.example.android.anonymoustwitter;
+package com.example.android.anonymoustwitter.viewmodel;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.android.anonymoustwitter.model.Post;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
@@ -23,10 +23,6 @@ public class FirebaseLiveData extends LiveData<List<Post>> {
 
     public FirebaseLiveData(Query query) {
         this.query = query;
-    }
-
-    private FirebaseLiveData(DatabaseReference ref) {
-        this.query = ref;
     }
 
     @Override

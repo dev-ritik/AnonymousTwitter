@@ -1,4 +1,4 @@
-package com.example.android.anonymoustwitter;
+package com.example.android.anonymoustwitter.viewmodel;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;

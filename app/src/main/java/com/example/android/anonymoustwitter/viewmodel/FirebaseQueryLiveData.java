@@ -1,4 +1,4 @@
-package com.example.android.anonymoustwitter;
+package com.example.android.anonymoustwitter.viewmodel;
 
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
@@ -39,7 +39,6 @@ public class FirebaseQueryLiveData extends LiveData<Long> {
     private class MyValueEventListener implements ValueEventListener {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//            System.out.println("We're done loading the initial " + dataSnapshot.getChildrenCount() + " items");
             setValue(dataSnapshot.getChildrenCount());
         }
 

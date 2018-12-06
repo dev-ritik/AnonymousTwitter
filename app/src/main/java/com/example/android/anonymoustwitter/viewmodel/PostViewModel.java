@@ -1,15 +1,16 @@
-package com.example.android.anonymoustwitter;
+package com.example.android.anonymoustwitter.viewmodel;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 
+import com.example.android.anonymoustwitter.model.Post;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
-public class HotStockViewModel extends ViewModel {
+public class PostViewModel extends ViewModel {
     private static final DatabaseReference HOT_STOCK_REF =
             FirebaseDatabase.getInstance().getReference().child("input");
 

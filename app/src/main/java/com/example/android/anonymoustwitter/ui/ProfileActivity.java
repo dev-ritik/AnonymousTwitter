@@ -1,4 +1,4 @@
-package com.example.android.anonymoustwitter;
+package com.example.android.anonymoustwitter.ui;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
@@ -14,26 +14,25 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.firebase.database.ChildEventListener;
+import com.example.android.anonymoustwitter.model.Post;
+import com.example.android.anonymoustwitter.viewmodel.ProfileViewModel;
+import com.example.android.anonymoustwitter.viewmodel.ProfileViewModelFactory;
+import com.example.android.anonymoustwitter.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import static com.example.android.anonymoustwitter.MainActivity.userInfo;
+import static com.example.android.anonymoustwitter.ui.MainActivity.userInfo;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    public static ChildEventListener mChildEventListenerProfile;
-
-
     private RecyclerView mRecyclerView;
     private PostAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
 
     ArrayList<Post> favouritePosts;
 
     private ProfileViewModelFactory mViewModelFactory;
-
     private ProfileViewModel mViewModel;
     private int mPosition = RecyclerView.NO_POSITION;
 
@@ -46,7 +45,7 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String email = intent.getStringExtra("email");
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Profile");
 
 
@@ -70,7 +69,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
 
@@ -91,61 +90,12 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
-//
-//        for (int i = 0; i < userInfo.getFavourites().size(); i++) {
-//            mMessagesDatabaseReference.orderByKey().startAt(userInfo.getFavourites().get(i)).limitToFirst(1).addChildEventListener(new ChildEventListener() {
-//                @Override
-//                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                    Log.i("onchildadded", "point pr102");
-//
-//                    Post post = dataSnapshot.getValue(Post.class);
-//                    Log.i(post.getText(), "point pr65");
-//                    favouritePosts.add(post);
-//
-//                    mAdapter.notifyDataSetChanged();
-//
-//                }
-//
-//                @Override
-//                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//
-//                }
-//
-//                @Override
-//                public void onChildRemoved(DataSnapshot dataSnapshot) {
-//
-//                    for (Iterator<Post> iterator = favouritePosts.iterator(); iterator.hasNext(); ) {
-//                        if (iterator.next().getKey() == dataSnapshot.getKey())
-//                            iterator.remove();
-//                    }
-//                    mAdapter.notifyDataSetChanged();
-//
-//                }
-//
-//                @Override
-//                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//
-//                }
-//
-//                @Override
-//                public void onCancelled(DatabaseError databaseError) {
-//
-//                }
-//            });
-
-//        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        System.out.println("standpoint pr112");
-        if (mChildEventListenerProfile != null) {
-            Log.i(mChildEventListenerProfile.toString(), "standpoint pr114");
-//            mMessagesDatabaseReference.removeEventListener(mChildEventListenerProfile);
-            mChildEventListenerProfile = null;
-        }
-//        detachDatabaseReadListener();
+        Log.i("point", "onPause: ");
 
     }
 

@@ -28,7 +28,7 @@
             android:layout_below="@+id/logo"
             android:orientation="vertical"
             android:visibility="visible"
-            tools:context="com.example.android.anonymoustwitter.LoginActivity">
+            tools:context="com.example.android.anonymoustwitter.ui.LoginActivity">
 
 
             <EditText

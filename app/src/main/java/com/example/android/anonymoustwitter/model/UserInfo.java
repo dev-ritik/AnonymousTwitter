@@ -1,4 +1,4 @@
-package com.example.android.anonymoustwitter;
+package com.example.android.anonymoustwitter.model;
 
 import java.util.ArrayList;
 

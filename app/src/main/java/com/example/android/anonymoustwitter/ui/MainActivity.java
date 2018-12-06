@@ -1,4 +1,4 @@
-package com.example.android.anonymoustwitter;
+package com.example.android.anonymoustwitter.ui;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
@@ -29,6 +29,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.anonymoustwitter.model.Post;
+import com.example.android.anonymoustwitter.viewmodel.PostViewModel;
+import com.example.android.anonymoustwitter.R;
+import com.example.android.anonymoustwitter.model.UserInfo;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -48,6 +52,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -74,12 +79,6 @@ public class MainActivity extends AppCompatActivity {
     public static PostAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
-//    private ArrayList<Post> posts;
-
-    ArrayList<String> likers;
-    ArrayList<String> unlikers;
-    ArrayList<String> favouriteArrayList;
-    ArrayList<ChildEventListener> childEventListenersList;
     public static UserInfo userInfo;
 
     public static String mUsername;
@@ -97,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private StorageReference mChatPhotosStorageReference;
     private int mPosition = RecyclerView.NO_POSITION;
+    private LiveData<List<Post>> databaseLiveData;
+    private LiveData<Long> liveData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,10 +133,6 @@ public class MainActivity extends AppCompatActivity {
         input = findViewById(R.id.linearLayout);
         mySwipeRefreshLayout = findViewById(R.id.swiperefresh);
 
-        childEventListenersList = new ArrayList<>();
-//        posts = new ArrayList<>();
-//
-//        mAdapter = new PostAdapter(posts);
         mAdapter = new PostAdapter();
 
         mRecyclerView.setAdapter(mAdapter);
@@ -241,13 +238,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mSendButton.setOnClickListener(new View.OnClickListener() {//send button
+        mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                likers = new ArrayList<>();
-                unlikers = new ArrayList<>();
-                favouriteArrayList = new ArrayList<>();
+                final ArrayList<String> likers = new ArrayList<>();
+                final ArrayList<String> unlikers = new ArrayList<>();
+                final ArrayList<String> favouriteArrayList = new ArrayList<>();
 
                 likers.add("1234");
                 unlikers.add("1234");
@@ -258,10 +255,10 @@ public class MainActivity extends AppCompatActivity {
                     imageLayout.setVisibility(View.INVISIBLE);
                     mProgressBar.setVisibility(View.VISIBLE);
                     mRecyclerView.setVisibility(View.VISIBLE);
-                    final StorageReference photoREf = mChatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
+                    final StorageReference photoREf = mChatPhotosStorageReference.child(Objects.requireNonNull(selectedImageUri.getLastPathSegment()));
                     photoREf.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
-                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) {
                             Log.i("point", "then: ");
                             if (!task.isSuccessful()) {
                                 Toast.makeText(MainActivity.this, "error while uploading", Toast.LENGTH_SHORT).show();
@@ -278,12 +275,6 @@ public class MainActivity extends AppCompatActivity {
                                 String downloadURL = downloadUri.toString();
                                 Log.i("point m201", selectedImageUri.toString());
                                 mProgressBar.setVisibility(View.INVISIBLE);
-                                likers = new ArrayList<>();
-                                unlikers = new ArrayList<>();
-                                favouriteArrayList = new ArrayList<>();
-                                likers.add("1234");
-                                unlikers.add("1234");
-                                favouriteArrayList.add("1234");
                                 imageView.setImageResource(0);
                                 Post post = new Post(mMessageEditText.getText().toString().trim(), downloadURL, calculateTime(), mUserId, likers, unlikers, favouriteArrayList);
 
@@ -318,12 +309,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("point m200", "user log in" + mUserId + " " + user + " " + user.getUid());
                     onSignInitialize(user.getDisplayName(), user.getEmail(), user.getUid());
                     Query query = mUserDatabaseReference.orderByChild("userId").equalTo(mUserId);
-                    query.addValueEventListener(asdfg);
+                    query.addValueEventListener(vel);
                 } else {
                     //user signed out
                     onSignOutCleaner();
 
-                    startActivityForResult((new Intent(getApplicationContext(), com.example.android.anonymoustwitter.LoginActivity.class)),
+                    startActivityForResult((new Intent(getApplicationContext(), LoginActivity.class)),
                             RC_SIGN_IN);
                     Snackbar snackbar = Snackbar.make(mainLayout, "Logged out successfully", Snackbar.LENGTH_SHORT);
                     View sbView = snackbar.getView();
@@ -405,40 +396,7 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //                });
 
-        HotStockViewModel viewModel = ViewModelProviders.of(this).get(HotStockViewModel.class);
-        Log.i("point ma411", "onCreate: " + viewModel);
-        LiveData<Long> liveData = viewModel.getDataSnapshotLiveData();
 
-        liveData.observe(this, new Observer<Long>() {
-            @Override
-            public void onChanged(@Nullable Long aLong) {
-                // update the UI here with values in the snapshot
-                System.out.println("We're done loading the initial " + aLong + " items");
-                input.setVisibility(View.VISIBLE);
-                mProgressBar.setVisibility(View.INVISIBLE);
-            }
-
-        });
-
-        LiveData<List<Post>> databaseLiveData = viewModel.getDatabaseLiveData();
-
-        databaseLiveData.observe(this, new Observer<List<Post>>() {
-            @Override
-            public void onChanged(@Nullable List<Post> posts) {
-//                Log.i("point 430", "onChanged: " + mAdapter.getItemCount());
-                if (posts == null) posts = new ArrayList<>();
-
-                Log.i("point", "onChanged: " + posts.size());
-                mAdapter.swapForecast(posts);
-                if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
-                mRecyclerView.smoothScrollToPosition(mPosition);
-
-                // Show the weather list or the loading screen based on whether the forecast data exists
-                // and is loaded
-                if (posts.size() != 0) showWeatherDataView();
-                else showLoading();
-            }
-        });
     }
 
     private void showWeatherDataView() {
@@ -451,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
         mProgressBar.setVisibility(View.VISIBLE);
     }
 
-    private ValueEventListener asdfg = new ValueEventListener() {
+    private ValueEventListener vel = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             long count = dataSnapshot.getChildrenCount();
@@ -464,7 +422,6 @@ public class MainActivity extends AppCompatActivity {
                 userInfo = new UserInfo(mUsername, mUserId, mEmailId, favorite);
                 mUserDatabaseReference.push().setValue(userInfo);
             } else {
-//                userInfo = dataSnapshot.getValue(UserInfo.class);//as Post has all the three required parameter
                 for (DataSnapshot dsp : dataSnapshot.getChildren()) {
                     userInfo = dsp.getValue(UserInfo.class); //add result into array list
 
@@ -527,15 +484,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.sign_out_menu:
                 mUsername = ANONYMOUS;
                 mEmailId = "";
-//                posts.clear();
-//        mPostAdapter.clear();//clear adapter so that it doesn't holds any earlier data
                 mAdapter.notifyItemRangeRemoved(0, mAdapter.getItemCount());
                 AuthUI.getInstance().signOut(this);//from login providers and smart lock//redirects to onpause and on resume
                 return true;
 
             case R.id.profile:
-                Intent intent = new Intent(getApplicationContext(), com.example.android.anonymoustwitter.ProfileActivity.class);
-
+                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
                 intent.putExtra("email", mEmailId);
                 startActivity(intent);
                 return true;
@@ -550,12 +504,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        Log.i("point m309", "onpause");
         if (mAuthStateListener != null)
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
-        Log.i("point m309", "onpause");
-//        detachDatabaseReadListener();
-//        posts.clear();
-//        mPostAdapter.clear();//clear all data stored in adapter
         mAdapter.notifyItemRangeRemoved(0, mAdapter.getItemCount());
         //remove authentication
 
@@ -573,104 +524,57 @@ public class MainActivity extends AppCompatActivity {
         mUsername = username;
         mEmailId = email;
         mUserId = uid;
-        attachDatabaseListener();//sync and download content and update adapter
 
+
+        PostViewModel viewModel = ViewModelProviders.of(this).get(PostViewModel.class);
+        liveData = viewModel.getDataSnapshotLiveData();
+        liveData.observe(this, countObserver);
+
+        databaseLiveData = viewModel.getDatabaseLiveData();
+        databaseLiveData.observe(this, postObserver
+        );
     }
+
+    private Observer<Long> countObserver = new Observer<Long>() {
+        @Override
+        public void onChanged(@Nullable Long aLong) {
+            // update the UI here with values in the snapshot
+            System.out.println("We're done loading the initial " + aLong + " items");
+            input.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
+
+    };
+
+    private Observer<List<Post>> postObserver = new Observer<List<Post>>() {
+        @Override
+        public void onChanged(@Nullable List<Post> posts) {
+//                Log.i("point 430", "onChanged: " + mAdapter.getItemCount());
+            if (posts == null) posts = new ArrayList<>();
+
+            Log.i("point", "onChanged: " + posts.size());
+            mAdapter.swapForecast(posts);
+            if (mPosition == RecyclerView.NO_POSITION) mPosition = 0;
+            mRecyclerView.smoothScrollToPosition(mPosition);
+
+            // Show the list or the loading screen based on whether the forecast data exists
+            // and is loaded
+            if (posts.size() != 0) showWeatherDataView();
+            else showLoading();
+        }
+    };
 
     private void onSignOutCleaner() {
         mUsername = ANONYMOUS;
         mEmailId = "";
-//        posts.clear();
-//        mPostAdapter.clear();//clear adapter so that it doesn't holds any earlier data
         mAdapter.notifyItemRangeRemoved(0, mAdapter.getItemCount());
 
-    }
-
-    private void attachDatabaseListener() {
-//        mMessagesDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                System.out.println("We're done loading the initial " + dataSnapshot.getChildrenCount() + " items");
-//                input.setVisibility(View.VISIBLE);
-//                mProgressBar.setVisibility(View.INVISIBLE);
-//
-//            }
-//
-//            @Override`
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-//
-//        mMessagesDatabaseReference.limitToLast(6).addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String s) {
-//
-//                itemPos++;
-//
-//                if (itemPos == 1) {
-//
-//                    messageKey = dataSnapshot.getKey();
-//                    mLastKey = messageKey;
-//                    mPrevKey = messageKey;
-//
-//                }
-//
-//                Log.i("point ma597", dataSnapshot.getKey());
-//
-////                    //attached to all added child(all past and future child)
-//                Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
-//
-//                if (post.getKey() == null) {
-//                    post.setKey(dataSnapshot.getKey());
-//                }
-//                posts.add(post);
-//
-//                mAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-////                Post post = dataSnapshot.getValue(Post.class);//as Post has all the three required parameter
-//                Log.i("point ma618", dataSnapshot.getKey());
-//
-//                for (Iterator<Post> iterator = posts.iterator(); iterator.hasNext(); ) {
-////
-//                    if (iterator.next().getKey().equals(dataSnapshot.getKey())) {
-//                        iterator.remove();
-//                    }
-//                }
-//
-//                mAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-    }
-
-
-    private void detachDatabaseReadListener() {
-        if (refreshChildListener != null)
-            mMessagesDatabaseReference.removeEventListener(refreshChildListener);
-        refreshChildListener = null;
+        databaseLiveData.removeObserver(postObserver);
+        liveData.removeObserver(countObserver);
     }
 
     public String calculateTime() {
         return android.text.format.DateFormat.format("MMM dd, yyyy hh:mm:ss aaa", new java.util.Date()).toString();
-
     }
 
 }

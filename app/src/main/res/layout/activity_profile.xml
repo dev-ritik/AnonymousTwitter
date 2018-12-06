@@ -8,7 +8,7 @@
     android:background="@color/background_others"
     android:orientation="vertical"
     android:padding="5dp"
-    tools:context="com.example.android.anonymoustwitter.ProfileActivity">
+    tools:context="com.example.android.anonymoustwitter.ui.ProfileActivity">
 
     <RelativeLayout
         android:layout_width="wrap_content"

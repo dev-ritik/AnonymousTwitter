@@ -1,4 +1,4 @@
-package com.example.android.anonymoustwitter;
+package com.example.android.anonymoustwitter.ui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.android.anonymoustwitter.R;
 import com.example.android.loginlibrary.SimpleEmailLogin;
 import com.example.android.loginlibrary.SimpleFacebookLogin;
 import com.example.android.loginlibrary.SimpleGoogleLogin;
@@ -223,7 +224,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
                     //pass intent ....
-                    Intent intent = new Intent(getApplicationContext(), com.example.android.anonymoustwitter.ProfileActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
 
                     intent.putExtra("result", 1);
                     setResult(Activity.RESULT_OK, intent);
@@ -301,7 +302,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.i("point 302", "resultActualLoggedIn: ");
                 mProgressBar.setVisibility(View.INVISIBLE);
 
-                Intent intent = new Intent(getApplicationContext(), com.example.android.anonymoustwitter.ProfileActivity.class);
+                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
 
                 intent.putExtra("result", 1);
                 setResult(Activity.RESULT_OK, intent);

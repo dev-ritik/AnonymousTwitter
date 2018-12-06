@@ -1,8 +1,9 @@
-package com.example.android.anonymoustwitter;
+package com.example.android.anonymoustwitter.ui;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.android.anonymoustwitter.model.Post;
+import com.example.android.anonymoustwitter.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
@@ -22,9 +25,8 @@ import com.varunest.sparkbutton.SparkEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.view.Gravity.LEFT;
-import static android.view.Gravity.RIGHT;
-import static com.example.android.anonymoustwitter.MainActivity.mMessagesDatabaseReference;
+import static android.view.Gravity.START;
+import static com.example.android.anonymoustwitter.ui.MainActivity.mMessagesDatabaseReference;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     private List<Post> mDataset;
@@ -90,9 +92,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 //            mDataset = posts;
 //            notifyDataSetChanged();
 //        } else {
-//            Log.i("point", "swapForecast: " + posts.size());
-//            Log.i("point", "swapForecast: " + mDataset.size());
-//            Log.i("point", "swapForecast: " + (mDataset == posts));
 //            /*
 //             * Otherwise we use DiffUtil to calculate the changes and update accordingly. This
 //             * shows the four methods you need to override to return a DiffUtil callback. The
@@ -115,9 +114,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 //                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
 //                    Boolean asd = mDataset.get(oldItemPosition).getKey().equals(
 //                            posts.get(newItemPosition).getKey());
-//                    Log.i("point", "areItemsTheSame: " + oldItemPosition + " " + mDataset.get(oldItemPosition).getText());
-//                    Log.i("point", "areItemsTheSame: " + newItemPosition + " " + mDataset.get(newItemPosition).getText());
-//                    Log.i("point", "areItemsTheSame: " + asd);
 //                    return asd;
 //                }
 //
@@ -125,24 +121,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 //                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
 //                    Post newWeather = posts.get(newItemPosition);
 //                    Post oldWeather = mDataset.get(oldItemPosition);
-//                    Log.i("point", "areContentsTheSame: " + newItemPosition + " " + newWeather);
-//                    Log.i("point", "areContentsTheSame: " + oldItemPosition + " " + oldWeather);
 //                    return newWeather.getKey().equals(oldWeather.getKey());
 //                }
 //            });
-//            Log.i("point", "swapForecast: " + "passed!!");
 ////            mDataset = posts;
 //            mDataset=new ArrayList<>(posts);
 //            result.dispatchUpdatesTo(PostAdapter.this);
 //
-//            if (posts.size() == 6) {
-//
-//                Log.i("point", "swapForecast: " + "enter exp");
-//                Log.i("point", "swapForecast: " + posts.size() + " " + mDataset.size());
-//                posts.add(new Post());
-//                Log.i("point", "swapForecast: " + posts.size() + " " + mDataset.size());
-//
-//            }
 //        }
 //    }
 
@@ -153,10 +138,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             mDataset = posts;
             notifyDataSetChanged();
         } else {
-//            Log.i("point", "swapForecast: " + posts.size());
-//            Log.i("point", "swapForecast: " + mDataset.size());
-//            Log.i("point", "swapForecast: " + (mDataset == posts));
-//
             mDataset = posts;
             notifyDataSetChanged();
         }
@@ -192,9 +173,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
         if (post.getPosterId().equals(MainActivity.mUserId)) {
 
-            holder.messageLayout.setGravity(RIGHT);
+            holder.messageLayout.setGravity(Gravity.END);
         } else {
-            holder.messageLayout.setGravity(LEFT);
+            holder.messageLayout.setGravity(START);
         }
 
         holder.likes.setText(Integer.toString(post.getLikedUsers().size() - 1));
@@ -332,12 +313,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
         if (!timeArray[2].equals(currentTimeArray[2])) {
 
-            holder.timeTextView.setText(timeArray[0] + " " + timeArray[1] + " " + timeArray[2] + "\n" + timeArray[3] + " " + timeArray[4]);
+            holder.timeTextView.setText(String.format("%s %s %s\n%s %s", timeArray[0], timeArray[1], timeArray[2], timeArray[3], timeArray[4]));
         } else {
             if (!timeArray[0].equals(currentTimeArray[0]) || !timeArray[1].equals(currentTimeArray[1])) {
-                holder.timeTextView.setText(timeArray[0] + " " + timeArray[1] + "\n" + timeArray[3] + " " + timeArray[4]);
+                holder.timeTextView.setText(String.format("%s %s\n%s %s", timeArray[0], timeArray[1], timeArray[3], timeArray[4]));
             } else {
-                holder.timeTextView.setText(timeArray[3] + " " + timeArray[4]);
+                holder.timeTextView.setText(String.format("%s %s", timeArray[3], timeArray[4]));
             }
         }
 
@@ -354,7 +335,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                 if (!post.getSaveIt().contains(MainActivity.mUserId)) {
                     post.getSaveIt().add(MainActivity.mUserId);
                     changeData("saveIt", post.getKey(), post.getSaveIt());
-                    changefavouriteData(post.getKey(), true);
+                    changeFavouriteData(post.getKey(), true);
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.favouritePost.setChecked(true);
 
@@ -363,7 +344,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                     MainActivity.mAdapter.notifyDataSetChanged();
                     holder.favouritePost.setChecked(false);
                     changeData("saveIt", post.getKey(), post.getSaveIt());
-                    changefavouriteData(post.getKey(), false);
+                    changeFavouriteData(post.getKey(), false);
                 }
             }
         });
@@ -379,37 +360,20 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     public void changeData(final String arrayName, String key, final ArrayList<String> getArrayList) {
         mMessagesDatabaseReference.orderByKey().startAt(key).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    ArrayList<String> likers = (ArrayList<String>) child.child(arrayName).getValue();
-
                     child.getRef().child(arrayName).setValue(getArrayList);
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-//        }) Query query = MainActivity.mMessagesDatabaseReference.orderByChild("timeCurrent").equalTo(time);
-//        query.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot child : dataSnapshot.getChildren()) {
-//                    ArrayList<String> likers = (ArrayList<String>) child.child(arrayName).getValue();
-//
-//                    child.getRef().child(arrayName).setValue(getArrayList);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
+
     }
 
-    public void changefavouriteData(String key, boolean add) {
+    private void changeFavouriteData(String key, boolean add) {
         Log.i(key, "point pa358");
         if (add)
             MainActivity.userInfo.getFavourites().add(key);
@@ -418,7 +382,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         Query query = MainActivity.mUserDatabaseReference.orderByChild("userId").equalTo(MainActivity.mUserId);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
 
                     child.getRef().child("favourites").setValue(MainActivity.userInfo.getFavourites());
@@ -426,8 +390,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
     }
